@@ -2,6 +2,8 @@ import axios from 'axios';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
+import { ACCESS_TOKEN_COOKIE, TOKEN_TYPE_COOKIE } from '@/constants/auth';
+
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
@@ -148,8 +150,8 @@ function getHeaders(request: NextRequest): Record<string, string> {
   const headers: Record<string, string> = {};
 
   // Получаем токен из cookies
-  const token = request.cookies.get('access_token')?.value;
-  const tokenType = request.cookies.get('token_type')?.value || 'bearer';
+  const token = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
+  const tokenType = request.cookies.get(TOKEN_TYPE_COOKIE)?.value || 'bearer';
 
   // Добавляем заголовок авторизации если есть токен
   if (token) {

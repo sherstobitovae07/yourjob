@@ -1,0 +1,43 @@
+@import "@/styles/components/pages/auth/authPage.css";
+
+.register-role {
+  display: flex;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.register-role-btn {
+  flex: 1;
+  height: 46px;
+  border: none !important;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.6) 0%, rgba(6, 182, 212, 0.6) 100%) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2) !important;
+}
+
+.register-role-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(6, 182, 212, 0.35) !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, rgba(6, 182, 212, 0.8) 100%) !important;
+  color: #ffffff !important;
+}
+
+.register-role-btn.active {
+  border: none !important;
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4) !important;
+}
+
+.register-role-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

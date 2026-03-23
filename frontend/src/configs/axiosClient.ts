@@ -1,10 +1,8 @@
 import type {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import axios from 'axios';
 
+import { ACCESS_TOKEN_COOKIE, TOKEN_TYPE_COOKIE } from '@/constants/auth';
 import { deleteCookie, getCookie } from '@/utils/cookies';
-
-const TOKEN_KEY = 'access_token';
-const TOKEN_TYPE_KEY = 'token_type';
 
 /**
  * Создает экземпляр axios клиента для работы с API
@@ -21,8 +19,8 @@ const createAxiosClient = (): AxiosInstance => {
   // Интерсептор запросов - добавляет токен авторизации
   client.interceptors.request.use(
     (config) => {
-      const token = getCookie(TOKEN_KEY);
-      const tokenType = getCookie(TOKEN_TYPE_KEY) || 'bearer';
+      const token = getCookie(ACCESS_TOKEN_COOKIE);
+      const tokenType = getCookie(TOKEN_TYPE_COOKIE) || 'bearer';
 
       if (token) {
         config.headers.Authorization = `${tokenType} ${token}`;
@@ -45,13 +43,15 @@ const createAxiosClient = (): AxiosInstance => {
         // Проверяем, не является ли это запросом на авторизацию
         // Если это запрос на /auth/token, не делаем редирект - ошибка должна быть обработана в компоненте
         const requestUrl = error.config?.url || '';
-        const isAuthRequest = requestUrl.includes('/auth/token');
+        const isAuthRequest =
+          requestUrl.includes('/auth/login') ||
+          requestUrl.includes('/auth/register/');
 
         if (!isAuthRequest) {
           // Токен недействителен, очищаем куки
           if (typeof window !== 'undefined') {
-            deleteCookie(TOKEN_KEY);
-            deleteCookie(TOKEN_TYPE_KEY);
+            deleteCookie(ACCESS_TOKEN_COOKIE);
+            deleteCookie(TOKEN_TYPE_COOKIE);
 
             // Редирект на страницу авторизации только если мы не на странице авторизации
             const currentPath = window.location.pathname;

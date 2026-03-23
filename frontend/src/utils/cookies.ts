@@ -1,5 +1,7 @@
 // Утилиты для работы с куками
 
+import { ACCESS_TOKEN_COOKIE } from '@/constants/auth';
+
 export const setCookie = (name: string, value: string, days = 7, path = '/') => {
     if (typeof document === 'undefined') return;
   
@@ -31,6 +33,6 @@ export const setCookie = (name: string, value: string, days = 7, path = '/') => 
   // Для обратной совместимости
   export const removeCookie = deleteCookie;
   
-  export const AUTH_COOKIE_NAME = 'access_token';
+  export const AUTH_COOKIE_NAME = ACCESS_TOKEN_COOKIE;
   
   
