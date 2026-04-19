@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -12,6 +12,12 @@ from app.schemas.user import (
 )
 from app.services.profile_service import ProfileService
 
+from app.schemas.auth import MessageResponse
+from app.services.auth_service import AuthService
+from app.services.file_service import FileService
+from app.repositories.profile_repository import ProfileRepository
+from app.models.enums import UserRole
+from fastapi import HTTPException
 
 router = APIRouter(prefix="/profile", tags=["Profile"])
 
@@ -52,3 +58,83 @@ def update_employer_profile(
 ):
     service = ProfileService(db)
     return service.update_employer_profile(current_user, data)
+
+@router.delete("/me", response_model=MessageResponse)
+def delete_my_account(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AuthService(db)
+    service.delete_current_user(current_user)
+    return MessageResponse(message="Аккаунт удален")
+
+@router.post("/student/me/photo", response_model=MessageResponse)
+async def upload_student_photo(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != UserRole.STUDENT:
+        raise HTTPException(status_code=403, detail="Доступ только для студентов")
+
+    repository = ProfileRepository(db)
+    student = repository.get_student_by_user_id(current_user.id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Профиль студента не найден")
+
+    FileService.delete_file(student.photo_path)
+    saved_path = await FileService.save_student_photo(file)
+
+    student.photo_path = saved_path
+    repository.commit()
+    repository.refresh(student)
+
+    return MessageResponse(message="Фото студента успешно загружено")
+
+
+@router.post("/student/me/resume", response_model=MessageResponse)
+async def upload_student_resume(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != UserRole.STUDENT:
+        raise HTTPException(status_code=403, detail="Доступ только для студентов")
+
+    repository = ProfileRepository(db)
+    student = repository.get_student_by_user_id(current_user.id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Профиль студента не найден")
+
+    FileService.delete_file(student.resume_path)
+    saved_path = await FileService.save_resume_pdf(file)
+
+    student.resume_path = saved_path
+    repository.commit()
+    repository.refresh(student)
+
+    return MessageResponse(message="Резюме успешно загружено")
+
+
+@router.post("/employer/me/photo", response_model=MessageResponse)
+async def upload_employer_photo(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != UserRole.EMPLOYER:
+        raise HTTPException(status_code=403, detail="Доступ только для работодателей")
+
+    repository = ProfileRepository(db)
+    employer = repository.get_employer_by_user_id(current_user.id)
+    if not employer:
+        raise HTTPException(status_code=404, detail="Профиль работодателя не найден")
+
+    FileService.delete_file(employer.photo_path)
+    saved_path = await FileService.save_employer_photo(file)
+
+    employer.photo_path = saved_path
+    repository.commit()
+    repository.refresh(employer)
+
+    return MessageResponse(message="Фото работодателя успешно загружено")

@@ -11,7 +11,8 @@ class Student(Base):
     university: Mapped[str | None] = mapped_column(String(255))
     faculty: Mapped[str | None] = mapped_column(String(255))
     specialty: Mapped[str | None] = mapped_column(String(255))
-    resume_path: Mapped[str | None] = mapped_column(Text)
+    resume_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    photo_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     user = relationship("User", back_populates="student")
     applications = relationship("Application", back_populates="student")

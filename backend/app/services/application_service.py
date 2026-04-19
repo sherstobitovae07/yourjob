@@ -199,3 +199,54 @@ class ApplicationService:
             status=application.status,
             applied_at=application.applied_at,
         )
+
+    def delete_my_application(self, current_user: User, application_id: int) -> None:
+        if current_user.role != UserRole.STUDENT:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Удалять отклик может только студент",
+            )
+
+        student = self.repository.get_student_by_user_id(current_user.id)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Профиль студента не найден",
+            )
+
+        application = self.repository.get_my_application(student.id, application_id)
+        if not application:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Отклик не найден",
+            )
+
+        self.repository.delete_application(application)
+
+    def delete_application_as_employer(self, current_user: User, application_id: int) -> None:
+        if current_user.role != UserRole.EMPLOYER:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Удалять отклики может только работодатель",
+            )
+
+        application = self.repository.get_application_by_id(application_id)
+        if not application:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Отклик не найден",
+            )
+
+        if not application.internship:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Стажировка для отклика не найдена",
+            )
+
+        if application.internship.employer_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Вы можете удалять только отклики на свои стажировки",
+            )
+
+        self.repository.delete_application(application)

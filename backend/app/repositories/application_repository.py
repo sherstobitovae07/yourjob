@@ -78,3 +78,17 @@ class ApplicationRepository:
         self.db.commit()
         self.db.refresh(application)
         return application
+
+    def get_my_application(self, student_id: int, application_id: int) -> Application | None:
+        return (
+            self.db.query(Application)
+            .filter(
+                Application.id == application_id,
+                Application.student_id == student_id,
+            )
+            .first()
+        )
+
+    def delete_application(self, application: Application) -> None:
+        self.db.delete(application)
+        self.db.commit()

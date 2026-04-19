@@ -40,6 +40,7 @@ class ProfileService:
             faculty=student.faculty,
             specialty=student.specialty,
             resume_path=student.resume_path,
+            photo_path=student.photo_path,
         )
 
     def update_student_profile(
@@ -88,6 +89,7 @@ class ProfileService:
             faculty=student.faculty,
             specialty=student.specialty,
             resume_path=student.resume_path,
+            photo_path=student.photo_path,
         )
 
     def get_employer_profile(self, current_user: User) -> EmployerProfileResponse:
@@ -113,6 +115,7 @@ class ProfileService:
             company_name=employer.company_name,
             description=employer.description,
             website=employer.website,
+            photo_path=employer.photo_path,
         )
 
     def update_employer_profile(
@@ -159,4 +162,5 @@ class ProfileService:
             company_name=employer.company_name,
             description=employer.description,
             website=employer.website,
+            photo_path=employer.photo_path,
         )

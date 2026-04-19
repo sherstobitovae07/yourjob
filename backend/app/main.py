@@ -8,14 +8,16 @@ from app.core.database import Base, engine
 from app.models import User, Student, Employer, Admin, Internship, Application, Report
 from app.api.v1.admin import router as admin_router
 from app.api.v1.reports import router as reports_router
-
+from fastapi.staticfiles import StaticFiles
+from app.services.file_service import FileService
 
 
 app = FastAPI(
     title="Your Job API",
     version="1.0.0"
 )
-
+FileService.ensure_dirs()
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 @app.on_event("startup")
 def on_startup():

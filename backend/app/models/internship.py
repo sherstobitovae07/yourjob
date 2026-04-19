@@ -20,6 +20,7 @@ class Internship(Base):
         Enum(InternshipStatus, name="internship_status")
     )
     deadline: Mapped[date | None] = mapped_column(Date)
+    photo_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[str] = mapped_column(TIMESTAMP, server_default=func.current_timestamp())
 
     employer = relationship("Employer", back_populates="internships")

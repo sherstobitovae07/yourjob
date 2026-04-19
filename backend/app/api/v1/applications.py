@@ -13,6 +13,7 @@ from app.schemas.application import (
 )
 from app.services.application_service import ApplicationService
 
+from app.schemas.auth import MessageResponse
 
 router = APIRouter(prefix="/applications", tags=["Applications"])
 
@@ -55,3 +56,23 @@ def update_application_status(
 ):
     service = ApplicationService(db)
     return service.update_application_status(current_user, application_id, data)
+
+@router.delete("/my/{application_id}", response_model=MessageResponse)
+def delete_my_application(
+    application_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = ApplicationService(db)
+    service.delete_my_application(current_user, application_id)
+    return MessageResponse(message="Отклик удален")
+
+@router.delete("/employer/{application_id}", response_model=MessageResponse)
+def delete_application_as_employer(
+    application_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = ApplicationService(db)
+    service.delete_application_as_employer(current_user, application_id)
+    return MessageResponse(message="Отклик удален работодателем")

@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from app.models.enums import InternshipStatus
 
@@ -35,7 +35,7 @@ class InternshipResponse(BaseModel):
     status: InternshipStatus | None = None
     deadline: date | None = None
     created_at: datetime | None = None
-
+    photo_path: str | None = None
 
 class InternshipPublicResponse(BaseModel):
     id: int
@@ -48,3 +48,13 @@ class InternshipPublicResponse(BaseModel):
     deadline: date | None = None
     created_at: datetime | None = None
     company_name: str | None = None
+    photo_path: str | None = None
+
+class InternshipFilterParams(BaseModel):
+    q: str | None = None
+    city: str | None = Field(default=None, max_length=100)
+    direction: str | None = Field(default=None, max_length=100)
+    min_salary: int | None = Field(default=None, ge=0)
+    max_salary: int | None = Field(default=None, ge=0)
+
+    model_config = ConfigDict(extra="forbid")

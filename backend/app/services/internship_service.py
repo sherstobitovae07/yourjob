@@ -6,6 +6,7 @@ from app.models.user import User
 from app.repositories.internship_repository import InternshipRepository
 from app.schemas.internship import (
     InternshipCreateRequest,
+    InternshipFilterParams,
     InternshipPublicResponse,
     InternshipResponse,
     InternshipUpdateRequest,
@@ -51,6 +52,7 @@ class InternshipService:
             status=internship.status,
             deadline=internship.deadline,
             created_at=internship.created_at,
+            photo_path=internship.photo_path,
         )
 
     def get_my_internships(self, current_user: User) -> list[InternshipResponse]:
@@ -73,6 +75,7 @@ class InternshipService:
                 status=item.status,
                 deadline=item.deadline,
                 created_at=item.created_at,
+                photo_path=item.photo_path,
             )
             for item in internships
         ]
@@ -102,6 +105,7 @@ class InternshipService:
             status=internship.status,
             deadline=internship.deadline,
             created_at=internship.created_at,
+            photo_path=internship.photo_path,
         )
 
     def update_my_internship(
@@ -151,10 +155,31 @@ class InternshipService:
             status=internship.status,
             deadline=internship.deadline,
             created_at=internship.created_at,
+            photo_path=internship.photo_path,
         )
 
-    def get_active_internships(self) -> list[InternshipPublicResponse]:
-        internships = self.repository.get_active_internships()
+    def get_active_internships(
+            self,
+            filters: InternshipFilterParams,
+    ) -> list[InternshipPublicResponse]:
+        if (
+                filters.min_salary is not None
+                and filters.max_salary is not None
+                and filters.min_salary > filters.max_salary
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="min_salary не может быть больше max_salary",
+            )
+
+        internships = self.repository.get_active_internships(
+            q=filters.q,
+            city=filters.city,
+            direction=filters.direction,
+            min_salary=filters.min_salary,
+            max_salary=filters.max_salary,
+        )
+
         result = []
 
         for item in internships:
@@ -174,6 +199,7 @@ class InternshipService:
                     deadline=item.deadline,
                     created_at=item.created_at,
                     company_name=company_name,
+                    photo_path=item.photo_path,
                 )
             )
 
@@ -202,4 +228,21 @@ class InternshipService:
             deadline=internship.deadline,
             created_at=internship.created_at,
             company_name=company_name,
+            photo_path=internship.photo_path,
         )
+
+    def delete_my_internship(self, current_user: User, internship_id: int) -> None:
+        if current_user.role != UserRole.EMPLOYER:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Удалять стажировки может только работодатель",
+            )
+
+        internship = self.repository.get_my_internship_by_id(current_user.id, internship_id)
+        if not internship:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Стажировка не найдена",
+            )
+
+        self.repository.delete_internship(internship)

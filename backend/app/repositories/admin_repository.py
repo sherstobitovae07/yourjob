@@ -44,3 +44,21 @@ class AdminRepository:
 
     def count_applications(self) -> int:
         return self.db.query(func.count(Application.id)).scalar() or 0
+
+    def get_user_by_id(self, user_id: int) -> User | None:
+        return self.db.query(User).filter(User.id == user_id).first()
+
+    def delete_user(self, user: User) -> None:
+        self.db.delete(user)
+        self.db.commit()
+
+    def delete_internship(self, internship: Internship) -> None:
+        self.db.delete(internship)
+        self.db.commit()
+
+    def get_application_by_id(self, application_id: int) -> Application | None:
+        return self.db.query(Application).filter(Application.id == application_id).first()
+
+    def delete_application(self, application: Application) -> None:
+        self.db.delete(application)
+        self.db.commit()

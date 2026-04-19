@@ -27,7 +27,7 @@ class StudentProfileResponse(BaseModel):
     faculty: str | None = None
     specialty: str | None = None
     resume_path: str | None = None
-
+    photo_path: str | None = None
 
 class StudentProfileUpdateRequest(BaseModel):
     first_name: str | None = Field(default=None, max_length=100)
@@ -48,7 +48,7 @@ class EmployerProfileResponse(BaseModel):
     company_name: str | None = None
     description: str | None = None
     website: str | None = None
-
+    photo_path: str | None = None
 
 class EmployerProfileUpdateRequest(BaseModel):
     first_name: str | None = Field(default=None, max_length=100)

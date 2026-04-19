@@ -89,3 +89,40 @@ class AdminService:
             total_internships=self.repository.count_internships(),
             total_applications=self.repository.count_applications(),
         )
+
+    def delete_user(self, current_user: User, user_id: int) -> None:
+        self._check_admin_access(current_user)
+
+        user = self.repository.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Пользователь не найден",
+            )
+
+        self.repository.delete_user(user)
+
+
+    def delete_internship(self, current_user: User, internship_id: int) -> None:
+        self._check_admin_access(current_user)
+
+        internship = self.repository.get_internship_by_id(internship_id)
+        if not internship:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Стажировка не найдена",
+            )
+
+        self.repository.delete_internship(internship)
+
+    def delete_application(self, current_user: User, application_id: int) -> None:
+        self._check_admin_access(current_user)
+
+        application = self.repository.get_application_by_id(application_id)
+        if not application:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Отклик не найден",
+            )
+
+        self.repository.delete_application(application)

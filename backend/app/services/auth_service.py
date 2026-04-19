@@ -57,3 +57,6 @@ class AuthService:
             )
 
         return create_access_token(subject=user.id, role=user.role.value)
+
+    def delete_current_user(self, current_user: User) -> None:
+        self.user_repository.delete_user(current_user)
