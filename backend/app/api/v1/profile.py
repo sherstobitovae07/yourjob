@@ -138,3 +138,11 @@ async def upload_employer_photo(
     repository.refresh(employer)
 
     return MessageResponse(message="Фото работодателя успешно загружено")
+
+@router.post("/student/me/submit-for-verification", response_model=StudentProfileResponse)
+def submit_student_profile_for_verification(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = ProfileService(db)
+    return service.submit_student_profile_for_verification(current_user)

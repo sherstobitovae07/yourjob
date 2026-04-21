@@ -1,8 +1,8 @@
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import ForeignKey, String, Text, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
-
+from app.models.enums import VerificationStatus
 
 class Student(Base):
     __tablename__ = "students"
@@ -16,3 +16,10 @@ class Student(Base):
 
     user = relationship("User", back_populates="student")
     applications = relationship("Application", back_populates="student")
+
+    verification_status: Mapped[VerificationStatus | None] = mapped_column(
+        Enum(VerificationStatus, name="verification_status"),
+        nullable=False,
+        default=VerificationStatus.PENDING,
+    )
+    verification_comment: Mapped[str | None] = mapped_column(Text, nullable=True)

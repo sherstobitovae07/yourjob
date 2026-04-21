@@ -11,7 +11,7 @@ from app.schemas.application import (
     InternshipApplicationResponse,
     StudentApplicationResponse,
 )
-
+from app.models.enums import VerificationStatus
 
 class ApplicationService:
     def __init__(self, db: Session):
@@ -22,6 +22,8 @@ class ApplicationService:
         current_user: User,
         data: ApplicationCreateRequest,
     ) -> ApplicationResponse:
+
+
         if current_user.role != UserRole.STUDENT:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -33,6 +35,11 @@ class ApplicationService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Профиль студента не найден",
+            )
+        if student.verification_status != VerificationStatus.APPROVED:
+            raise HTTPException(
+                status_code=403,
+                detail="Аккаунт не подтвержден администратором",
             )
 
         internship = self.repository.get_internship_by_id(data.internship_id)

@@ -7,7 +7,7 @@ from app.models.employer import Employer
 from app.models.internship import Internship
 from app.models.student import Student
 from app.models.user import User
-
+from app.models.enums import VerificationStatus
 
 class AdminRepository:
     def __init__(self, db: Session):
@@ -62,3 +62,34 @@ class AdminRepository:
     def delete_application(self, application: Application) -> None:
         self.db.delete(application)
         self.db.commit()
+
+    def get_all_students(self) -> list[Student]:
+        return (
+            self.db.query(Student)
+            .options(joinedload(Student.user))
+            .order_by(Student.id.desc())
+            .all()
+        )
+
+    def get_pending_students(self) -> list[Student]:
+        return (
+            self.db.query(Student)
+            .options(joinedload(Student.user))
+            .filter(Student.verification_status == VerificationStatus.PENDING)
+            .order_by(Student.id.desc())
+            .all()
+        )
+
+    def get_student_by_id(self, student_id: int) -> Student | None:
+        return (
+            self.db.query(Student)
+            .options(joinedload(Student.user))
+            .filter(Student.id == student_id)
+            .first()
+        )
+
+    def save_student(self, student: Student) -> Student:
+        self.db.add(student)
+        self.db.commit()
+        self.db.refresh(student)
+        return student

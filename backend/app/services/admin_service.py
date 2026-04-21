@@ -1,15 +1,17 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.models.enums import UserRole
+from app.models.enums import UserRole, VerificationStatus
 from app.models.user import User
 from app.repositories.admin_repository import AdminRepository
 from app.schemas.admin import (
     AdminEmployerResponse,
     AdminStatsResponse,
+    AdminStudentResponse,
+    AdminStudentRejectRequest,
     AdminUserResponse,
 )
-
+from app.models.enums import VerificationStatus
 
 class AdminService:
     def __init__(self, db: Session):
@@ -126,3 +128,126 @@ class AdminService:
             )
 
         self.repository.delete_application(application)
+
+    def get_all_students(self, current_user: User):
+        self._check_admin_access(current_user)
+        students = self.repository.get_all_students()
+
+        result = []
+        for s in students:
+            result.append({
+                "id": s.id,
+                "email": s.user.email if s.user else None,
+                "first_name": s.user.first_name if s.user else None,
+                "last_name": s.user.last_name if s.user else None,
+                "university": s.university,
+                "specialty": s.specialty,
+                "status": s.verification_status,
+            })
+        return result
+
+    def get_pending_students(self, current_user: User) -> list[AdminStudentResponse]:
+        self._check_admin_access(current_user)
+
+        students = self.repository.get_pending_students()
+        result = []
+
+        for student in students:
+            email = None
+            first_name = None
+            last_name = None
+            created_at = None
+
+            if student.user:
+                email = student.user.email
+                first_name = student.user.first_name
+                last_name = student.user.last_name
+                created_at = student.user.created_at
+
+            result.append(
+                AdminStudentResponse(
+                    id=student.id,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    university=student.university,
+                    faculty=student.faculty,
+                    specialty=student.specialty,
+                    resume_path=student.resume_path,
+                    photo_path=student.photo_path,
+                    verification_status=student.verification_status,
+                    verification_comment=student.verification_comment,
+                    created_at=created_at,
+                )
+            )
+
+        return result
+
+    def approve_student(self, current_user: User, student_id: int) -> None:
+        self._check_admin_access(current_user)
+
+        student = self.repository.get_student_by_id(student_id)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Студент не найден",
+            )
+
+        student.verification_status = VerificationStatus.APPROVED
+        student.verification_comment = None
+        self.repository.save_student(student)
+
+    def reject_student(
+            self,
+            current_user: User,
+            student_id: int,
+            data: AdminStudentRejectRequest,
+    ) -> None:
+        self._check_admin_access(current_user)
+
+        student = self.repository.get_student_by_id(student_id)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Студент не найден",
+            )
+
+        student.verification_status = VerificationStatus.REJECTED
+        student.verification_comment = data.comment
+        self.repository.save_student(student)
+
+    def get_student_by_id(self, current_user: User, student_id: int) -> AdminStudentResponse:
+        self._check_admin_access(current_user)
+
+        student = self.repository.get_student_by_id(student_id)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Студент не найден",
+            )
+
+        email = None
+        first_name = None
+        last_name = None
+        created_at = None
+
+        if student.user:
+            email = student.user.email
+            first_name = student.user.first_name
+            last_name = student.user.last_name
+            created_at = student.user.created_at
+
+        return AdminStudentResponse(
+            id=student.id,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            university=student.university,
+            faculty=student.faculty,
+            specialty=student.specialty,
+            resume_path=student.resume_path,
+            photo_path=student.photo_path,
+            verification_status=student.verification_status,
+            verification_comment=student.verification_comment,
+            created_at=created_at,
+        )

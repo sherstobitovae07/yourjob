@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from app.models.enums import UserRole
+from app.models.enums import UserRole, VerificationStatus
 
 
 class UserResponse(BaseModel):
@@ -28,6 +28,8 @@ class StudentProfileResponse(BaseModel):
     specialty: str | None = None
     resume_path: str | None = None
     photo_path: str | None = None
+    verification_status: VerificationStatus | None = None
+    verification_comment: str | None = None
 
 class StudentProfileUpdateRequest(BaseModel):
     first_name: str | None = Field(default=None, max_length=100)
