@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { employerProfileService, type EmployerProfile } from "../../../services/employerProfileService";
+import DeleteAccountButton from '../../../components/Profile/DeleteAccountButton';
+import styles from '@/styles/components/profile.module.css';
 
 export default function MyEmployerProfilePage() {
   const router = useRouter();
@@ -90,107 +92,57 @@ export default function MyEmployerProfilePage() {
   const fullName = profile ? `${profile.first_name} ${profile.last_name}`.trim() : "Профиль работодателя";
 
   return (
-    <main style={{ minHeight: "100vh", padding: "100px 24px 40px", background: "linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%)" }} suppressHydrationWarning>
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+    <main className={styles.main} suppressHydrationWarning>
+      <div className={styles.container}>
         {/* Header */}
-        <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "24px" }}>
-          <div style={{ flex: 1 }}>
-            <h1 style={{ margin: 0, color: "#f8fafc", fontSize: "40px", fontWeight: 700, lineHeight: 1.2 }}>
-              {fullName}
-            </h1>
-            <p style={{ margin: "12px 0 0", color: "#cbd5e1", fontSize: "16px" }}>
-              Ваш профиль работодателя
-            </p>
+        <div className={styles.header}>
+          <div className={styles.headerLeft}>
+            <h1 className={styles.title}>{fullName}</h1>
+            <p className={styles.subtitle}>Ваш профиль работодателя</p>
           </div>
-          <Link
-            href="/dashboard/employer"
-            style={{
-              padding: "12px 24px",
-              borderRadius: "14px",
-              background: "linear-gradient(135deg, #06b6d4 0%, #10b981 100%)",
-              color: "#ffffff",
-              fontWeight: 700,
-              textDecoration: "none",
-              whiteSpace: "nowrap",
-              fontSize: "14px",
-              transition: "transform 0.2s ease, box-shadow 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 24px rgba(6, 182, 212, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            На главную
-          </Link>
+          <div className={styles.topActions}>
+            <Link href="/dashboard/employer" className={styles.linkButton}>
+              На главную
+            </Link>
+            <DeleteAccountButton />
+          </div>
         </div>
 
         {/* Main Content */}
         {loading ? (
-          <div style={{ background: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(6, 182, 212, 0.2)", borderRadius: "24px", padding: "60px 32px", textAlign: "center" }}>
-            <p style={{ color: "#cbd5e1", fontSize: "16px" }}>Загрузка профиля...</p>
+          <div className={styles.loadingBox}>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Загрузка профиля...</p>
           </div>
         ) : error && !profile ? (
-          <div style={{ background: "rgba(220, 38, 38, 0.12)", border: "1px solid rgba(220, 38, 38, 0.3)", borderRadius: "24px", padding: "24px 32px" }}>
-            <p style={{ color: "#f87171", fontSize: "16px", margin: 0 }}>⚠️ {error}</p>
+          <div className={styles.errorBox}>
+            <p style={{ color: '#f87171', fontSize: '16px', margin: 0 }}>⚠️ {error}</p>
           </div>
         ) : profile ? (
           <>
             {/* Contact Info Card */}
-            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "24px", padding: "32px", marginBottom: "24px", boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)" }}>
-              <h2 style={{ margin: "0 0 24px", color: "#0f172a", fontSize: "20px", fontWeight: 700 }}>Контактная информация</h2>
-              
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "20px" }}>
+            <div className={styles.card}>
+              <h2 className={styles.cardTitle}>Контактная информация</h2>
+
+              <div className={styles.gridTwo}>
                 <div>
-                  <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
-                    Email
-                  </label>
-                  <div style={{ width: "100%", minHeight: "52px", padding: "14px 16px", borderRadius: "14px", background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", color: "#1f2937", fontSize: "16px", fontWeight: 600 }}>
-                    {profile.email}
-                  </div>
+                  <label className={styles.mutedText}>Email</label>
+                  <div className={styles.readonlyField}>{profile.email}</div>
                 </div>
               </div>
             </div>
 
             {/* Edit Form Card */}
-            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "24px", padding: "32px", marginBottom: "24px", boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)" }}>
-              <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h2 style={{ margin: 0, color: "#0f172a", fontSize: "20px", fontWeight: 700 }}>
-                  {isEditing ? "Редактирование профиля" : "Профиль"}
-                </h2>
+            <div className={styles.card}>
+              <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className={styles.cardTitle}>{isEditing ? 'Редактирование профиля' : 'Профиль'}</h2>
                 {!isEditing && (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    style={{
-                      padding: "10px 18px",
-                      borderRadius: "14px",
-                      background: "linear-gradient(135deg, #06b6d4 0%, #10b981 100%)",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      boxShadow: "0 8px 20px rgba(6, 182, 212, 0.18)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-1px)";
-                      e.currentTarget.style.boxShadow = "0 10px 26px rgba(6, 182, 212, 0.25)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "0 8px 20px rgba(6, 182, 212, 0.18)";
-                    }}
-                  >
+                  <button onClick={() => setIsEditing(true)} className={styles.btnEdit}>
                     Редактировать
                   </button>
                 )}
               </div>
 
-              <div style={{ display: "grid", gap: "20px" }}>
+              <div style={{ display: 'grid', gap: '20px' }}>
                 {/* Name */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "20px" }}>
                   {/* First Name */}
@@ -199,36 +151,9 @@ export default function MyEmployerProfilePage() {
                       Имя
                     </label>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        name="first_name"
-                        value={formData.first_name}
-                        onChange={handleInputChange}
-                        style={{
-                          width: "100%",
-                          padding: "12px 14px",
-                          borderRadius: "12px",
-                          background: "#f8fafc",
-                          border: "1px solid #e2e8f0",
-                          color: "#1f2937",
-                          fontSize: "16px",
-                          fontWeight: 500,
-                          outline: "none",
-                          transition: "all 0.2s ease",
-                        }}
-                        onFocus={(e) => {
-                          e.currentTarget.style.borderColor = "#06b6d4";
-                          e.currentTarget.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.2)";
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.style.borderColor = "#e2e8f0";
-                          e.currentTarget.style.boxShadow = "none";
-                        }}
-                      />
+                      <input type="text" name="first_name" value={formData.first_name} onChange={handleInputChange} className={styles.input} />
                     ) : (
-                      <div style={{ width: "100%", minHeight: "52px", padding: "14px 16px", borderRadius: "14px", background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", color: formData.first_name ? "#1f2937" : "#64748b", fontSize: "16px", fontWeight: 600 }}>
-                        {formData.first_name || "Не указано"}
-                      </div>
+                      <div className={styles.readonlyField} style={{ color: formData.first_name ? '#1f2937' : '#64748b' }}>{formData.first_name || 'Не указано'}</div>
                     )}
                   </div>
 
@@ -238,36 +163,9 @@ export default function MyEmployerProfilePage() {
                       Фамилия
                     </label>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        name="last_name"
-                        value={formData.last_name}
-                        onChange={handleInputChange}
-                        style={{
-                          width: "100%",
-                          padding: "12px 14px",
-                          borderRadius: "12px",
-                          background: "#f8fafc",
-                          border: "1px solid #e2e8f0",
-                          color: "#1f2937",
-                          fontSize: "16px",
-                          fontWeight: 500,
-                          outline: "none",
-                          transition: "all 0.2s ease",
-                        }}
-                        onFocus={(e) => {
-                          e.currentTarget.style.borderColor = "#06b6d4";
-                          e.currentTarget.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.2)";
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.style.borderColor = "#e2e8f0";
-                          e.currentTarget.style.boxShadow = "none";
-                        }}
-                      />
+                      <input type="text" name="last_name" value={formData.last_name} onChange={handleInputChange} className={styles.input} />
                     ) : (
-                      <div style={{ width: "100%", minHeight: "52px", padding: "14px 16px", borderRadius: "14px", background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", color: formData.last_name ? "#1f2937" : "#64748b", fontSize: "16px", fontWeight: 600 }}>
-                        {formData.last_name || "Не указано"}
-                      </div>
+                      <div className={styles.readonlyField} style={{ color: formData.last_name ? '#1f2937' : '#64748b' }}>{formData.last_name || 'Не указано'}</div>
                     )}
                   </div>
                 </div>
@@ -278,36 +176,9 @@ export default function MyEmployerProfilePage() {
                     Название компании
                   </label>
                   {isEditing ? (
-                    <input
-                      type="text"
-                      name="company_name"
-                      value={formData.company_name}
-                      onChange={handleInputChange}
-                      style={{
-                        width: "100%",
-                        padding: "12px 14px",
-                        borderRadius: "12px",
-                        background: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        color: "#1f2937",
-                        fontSize: "16px",
-                        fontWeight: 500,
-                        outline: "none",
-                        transition: "all 0.2s ease",
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.borderColor = "#06b6d4";
-                        e.currentTarget.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.2)";
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.borderColor = "#e2e8f0";
-                        e.currentTarget.style.boxShadow = "none";
-                      }}
-                    />
+                    <input type="text" name="company_name" value={formData.company_name} onChange={handleInputChange} className={styles.input} />
                   ) : (
-                    <div style={{ width: "100%", minHeight: "52px", padding: "14px 16px", borderRadius: "14px", background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", color: formData.company_name ? "#1f2937" : "#64748b", fontSize: "16px", fontWeight: 600 }}>
-                      {formData.company_name || "Не указана"}
-                    </div>
+                    <div className={styles.readonlyField} style={{ color: formData.company_name ? '#1f2937' : '#64748b' }}>{formData.company_name || 'Не указана'}</div>
                   )}
                 </div>
 
@@ -318,36 +189,9 @@ export default function MyEmployerProfilePage() {
                       Веб-сайт
                     </label>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        name="website"
-                        value={formData.website}
-                        onChange={handleInputChange}
-                        style={{
-                          width: "100%",
-                          padding: "12px 14px",
-                          borderRadius: "12px",
-                          background: "#f8fafc",
-                          border: "1px solid #e2e8f0",
-                          color: "#1f2937",
-                          fontSize: "16px",
-                          fontWeight: 500,
-                          outline: "none",
-                          transition: "all 0.2s ease",
-                        }}
-                        onFocus={(e) => {
-                          e.currentTarget.style.borderColor = "#06b6d4";
-                          e.currentTarget.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.2)";
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.style.borderColor = "#e2e8f0";
-                          e.currentTarget.style.boxShadow = "none";
-                        }}
-                      />
+                      <input type="text" name="website" value={formData.website} onChange={handleInputChange} className={styles.input} />
                     ) : (
-                      <div style={{ width: "100%", minHeight: "52px", padding: "14px 16px", borderRadius: "14px", background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", color: formData.website ? "#1f2937" : "#64748b", fontSize: "16px", fontWeight: 600 }}>
-                        {formData.website || "Не указан"}
-                      </div>
+                      <div className={styles.readonlyField} style={{ color: formData.website ? '#1f2937' : '#64748b' }}>{formData.website || 'Не указан'}</div>
                     )}
                   </div>
                 </div>
@@ -358,111 +202,32 @@ export default function MyEmployerProfilePage() {
                     Описание компании
                   </label>
                   {isEditing ? (
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      style={{
-                        width: "100%",
-                        padding: "12px 14px",
-                        borderRadius: "12px",
-                        background: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        color: "#1f2937",
-                        fontSize: "16px",
-                        fontWeight: 500,
-                        outline: "none",
-                        transition: "all 0.2s ease",
-                        minHeight: "120px",
-                        fontFamily: "inherit",
-                        resize: "vertical",
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.borderColor = "#06b6d4";
-                        e.currentTarget.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.2)";
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.borderColor = "#e2e8f0";
-                        e.currentTarget.style.boxShadow = "none";
-                      }}
-                    />
+                    <textarea name="description" value={formData.description} onChange={handleInputChange} className={styles.textarea} />
                   ) : (
-                    <div style={{ width: "100%", minHeight: "120px", padding: "14px 16px", borderRadius: "14px", background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "flex-start", paddingTop: "14px", color: formData.description ? "#1f2937" : "#64748b", fontSize: "16px", fontWeight: 600, lineHeight: "1.5" }}>
-                      {formData.description || "Не указано"}
-                    </div>
+                    <div className={styles.readonlyField} style={{ minHeight: 120, alignItems: 'flex-start', paddingTop: 14, lineHeight: '1.5', color: formData.description ? '#1f2937' : '#64748b' }}>{formData.description || 'Не указано'}</div>
                   )}
                 </div>
 
                 {error && (
-                  <p style={{ color: "#dc2626", fontSize: "14px", margin: 0, padding: "12px 16px", background: "#fee2e2", borderRadius: "8px" }}>
+                  <p style={{ color: '#dc2626', fontSize: '14px', margin: 0, padding: '12px 16px', background: '#fee2e2', borderRadius: 8 }}>
                     {error}
                   </p>
                 )}
 
                 {isEditing && (
-                  <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
-                    <button
-                      onClick={handleSave}
-                      disabled={isSaving}
-                      style={{
-                        flex: 1,
-                        padding: "14px 24px",
-                        borderRadius: "14px",
-                        background: "linear-gradient(135deg, #10b981 0%, #06b6d4 100%)",
-                        color: "#ffffff",
-                        fontWeight: 700,
-                        fontSize: "14px",
-                        border: "none",
-                        cursor: isSaving ? "not-allowed" : "pointer",
-                        opacity: isSaving ? 0.6 : 1,
-                        transition: "all 0.2s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSaving) {
-                          e.currentTarget.style.transform = "translateY(-2px)";
-                          e.currentTarget.style.boxShadow = "0 8px 24px rgba(6, 182, 212, 0.3)";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow = "none";
-                      }}
-                    >
-                      {isSaving ? "Сохранение..." : "Сохранить"}
+                  <div className={styles.actionsRight} style={{ marginTop: 12 }}>
+                    <button onClick={handleSave} disabled={isSaving} className={styles.btnPrimary} style={{ opacity: isSaving ? 0.6 : 1 }}>
+                      {isSaving ? 'Сохранение...' : 'Сохранить'}
                     </button>
-                    <button
-                      onClick={handleCancel}
-                      style={{
-                        flex: 1,
-                        padding: "14px 24px",
-                        borderRadius: "14px",
-                        background: "linear-gradient(135deg, #06b6d4 0%, #10b981 100%)",
-                        color: "#ffffff",
-                        fontWeight: 700,
-                        fontSize: "14px",
-                        border: "none",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-2px)";
-                        e.currentTarget.style.boxShadow = "0 8px 24px rgba(6, 182, 212, 0.25)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow = "none";
-                      }}
-                    >
-                      Отмена
-                    </button>
+                    <button onClick={handleCancel} className={styles.btnEdit}>Отмена</button>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Info Section */}
-            <div style={{ background: "#d1f5ff", border: "1px solid #7dd3fc", borderRadius: "24px", padding: "24px 32px" }}>
-              <p style={{ margin: 0, color: "#0f172a", fontSize: "16px", lineHeight: 1.75 }}>
+            <div className={styles.infoBox}>
+              <p style={{ margin: 0, color: '#0f172a', fontSize: '16px', lineHeight: 1.75 }}>
                 <strong>Совет:</strong> Регулярно обновляйте информацию о вашей компании, чтобы студенты видели актуальные данные о вашей организации и предложения о стажировках.
               </p>
             </div>

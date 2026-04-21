@@ -59,7 +59,7 @@ def update_employer_profile(
     service = ProfileService(db)
     return service.update_employer_profile(current_user, data)
 
-<<<<<<< Updated upstream
+
 @router.delete("/me", response_model=MessageResponse)
 def delete_my_account(
     current_user: User = Depends(get_current_user),

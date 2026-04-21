@@ -96,4 +96,16 @@
   --color-card-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   
   --color-backdrop: rgba(15, 23, 42, 0.9);
+  --color-danger: #ef4444;
+  --color-danger-contrast: #ffffff;
+
+  /* Modal specific */
+  --modal-bg: #ffffff;
+  --modal-shadow: 0 10px 40px rgba(2, 6, 23, 0.4);
+  --modal-radius: 12px;
+  --modal-width: 600px;
+  --modal-z: 1200;
+  /* Modal typography (defaults safe on light backgrounds) */
+  --modal-title-color: #0f172a;
+  --modal-text-color: #334155;
 }
