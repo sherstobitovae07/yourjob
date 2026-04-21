@@ -1,43 +1,31 @@
 "use client";
-
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-import { login, getAuthErrorMessage, registerEmployer, registerStudent } from "@/services/authService";
-import type { EmployerRegisterRequest, StudentRegisterRequest, UserRole } from "@/types/auth";
-
+import { login, getAuthErrorMessage, registerEmployer, registerStudent } from "../../../services/authService";
+import type { EmployerRegisterRequest, StudentRegisterRequest, UserRole } from "../../../types/auth";
 import "@/styles/components/pages/auth/authRegisterPage.css";
-
 const PASSWORD_MAX_LENGTH = 60; // bcrypt ограничивает 72 байт; лучше ограничить короче
-
 function normalizeOptional(value: FormDataEntryValue): string | undefined {
   const s = String(value ?? "").trim();
   return s === "" ? undefined : s;
 }
-
 export default function RegisterPage() {
   const router = useRouter();
-
   const [role, setRole] = useState<UserRole>("STUDENT");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-
     const form = event.currentTarget;
     const fd = new FormData(form);
-
     const email = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
     const first_name = normalizeOptional(fd.get("first_name") ?? "");
     const last_name = normalizeOptional(fd.get("last_name") ?? "");
-
     try {
       setLoading(true);
-
       if (role === "STUDENT") {
         const payload: StudentRegisterRequest = {
           email,
@@ -49,7 +37,6 @@ export default function RegisterPage() {
           specialty: normalizeOptional(fd.get("specialty") ?? ""),
           resume_path: normalizeOptional(fd.get("resume_path") ?? ""),
         };
-
         await registerStudent(payload);
       } else {
         const payload: EmployerRegisterRequest = {
@@ -61,13 +48,19 @@ export default function RegisterPage() {
           description: normalizeOptional(fd.get("description") ?? ""),
           website: normalizeOptional(fd.get("website") ?? ""),
         };
-
         await registerEmployer(payload);
       }
-
-      // После регистрации сразу логинимся (чтобы пользователь попал в авторизованную зону).
-      await login({ email, password });
-      router.push("/");
+      const user = await login({ email, password });
+      const dashboardRole = user?.role ?? localStorage.getItem("user_role");
+      const dashboardPath =
+        dashboardRole === "STUDENT"
+          ? "/dashboard/student"
+          : dashboardRole === "EMPLOYER"
+          ? "/dashboard/employer"
+          : dashboardRole === "ADMIN"
+          ? "/dashboard/admin"
+          : "/auth";
+      router.push(dashboardPath);
       router.refresh();
     } catch (err) {
       setError(getAuthErrorMessage(err));
@@ -75,7 +68,6 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
-
   return (
     <main className="auth-page">
       <section className="auth-card">
@@ -84,17 +76,14 @@ export default function RegisterPage() {
             <h1>Добро пожаловать</h1>
             <p>Создайте аккаунт и подключайтесь к лучшим стажировкам.</p>
           </aside>
-
           <div className="auth-card-side auth-card-side--right">
             <h1 className="auth-title">Регистрация</h1>
             <p className="auth-subtitle">Создайте аккаунт, чтобы начать пользоваться сервисом</p>
-
             {error ? (
               <p className="auth-error" role="alert">
                 {error}
               </p>
             ) : null}
-
             <div className="register-role">
           <button
             type="button"
@@ -113,7 +102,6 @@ export default function RegisterPage() {
             Работодатель
           </button>
         </div>
-
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="full-width">
             <label className="auth-label" htmlFor="email">
@@ -130,7 +118,6 @@ export default function RegisterPage() {
               autoComplete="email"
             />
           </div>
-
           <div className="full-width">
             <label className="auth-label" htmlFor="password">
               Пароль
@@ -148,7 +135,6 @@ export default function RegisterPage() {
               autoComplete="new-password"
             />
           </div>
-
           <div>
             <label className="auth-label" htmlFor="first_name">
               Имя
@@ -163,7 +149,6 @@ export default function RegisterPage() {
               autoComplete="given-name"
             />
           </div>
-
           <div>
             <label className="auth-label" htmlFor="last_name">
               Фамилия
@@ -178,7 +163,6 @@ export default function RegisterPage() {
               autoComplete="family-name"
             />
           </div>
-
           {role === "STUDENT" ? (
             <>
               <div className="full-width">
@@ -194,7 +178,6 @@ export default function RegisterPage() {
                   disabled={loading}
                 />
               </div>
-
               <div>
                 <label className="auth-label" htmlFor="faculty">
                   Факультет
@@ -208,7 +191,6 @@ export default function RegisterPage() {
                   disabled={loading}
                 />
               </div>
-
               <div>
                 <label className="auth-label" htmlFor="specialty">
                   Специальность
@@ -222,7 +204,6 @@ export default function RegisterPage() {
                   disabled={loading}
                 />
               </div>
-
               <div className="full-width">
                 <label className="auth-label" htmlFor="resume_path">
                   Резюме 
@@ -252,7 +233,6 @@ export default function RegisterPage() {
                   disabled={loading}
                 />
               </div>
-
               <div>
                 <label className="auth-label" htmlFor="description">
                   Описание
@@ -266,7 +246,6 @@ export default function RegisterPage() {
                   disabled={loading}
                 />
               </div>
-
               <div className="full-width">
                 <label className="auth-label" htmlFor="website">
                   Сайт
@@ -282,12 +261,10 @@ export default function RegisterPage() {
               </div>
             </>
           )}
-
           <button type="submit" className="auth-button full-width" disabled={loading}>
             {loading ? "Создание..." : "Зарегистрироваться"}
           </button>
         </form>
-
         <p className="auth-switch">
           Уже есть аккаунт?{" "}
           <Link href="/auth" className="auth-switch-link">
@@ -300,4 +277,3 @@ export default function RegisterPage() {
 </main>
   );
 }
-

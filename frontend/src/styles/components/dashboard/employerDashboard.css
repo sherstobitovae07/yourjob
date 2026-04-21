@@ -1,0 +1,252 @@
+/* Employer Dashboard Styles */
+
+.employer-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.employer-dashboard.loading,
+.employer-dashboard.error {
+  padding: 3rem 2rem;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.employer-dashboard.error {
+  color: #d32f2f;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.header-title-section h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+.header-title-section .company-name {
+  margin: 0 0 0.5rem 0;
+  color: #667eea;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.header-title-section .company-website {
+  color: #0288d1;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.header-title-section .company-website:hover {
+  color: #0277bd;
+  text-decoration: underline;
+}
+
+.btn-create-internship {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.btn-create-internship:hover {
+  opacity: 0.9;
+}
+
+.btn-create-internship:active {
+  transform: scale(0.98);
+}
+
+.company-description {
+  background: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.company-description p {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Internships Section */
+
+.internships-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.internships-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.internship-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.internship-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.internship-card-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.header-left h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #333;
+}
+
+.internship-status {
+  padding: 0.3rem 0.8rem;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.internship-card-body {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.internship-description {
+  margin: 0 0 1rem 0;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.internship-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-item {
+  font-size: 0.9rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.internship-card-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-edit,
+.btn-applications {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-edit:hover,
+.btn-applications:hover {
+  background: #f5f5f5;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.btn-applications {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.btn-applications:hover {
+  background: linear-gradient(135deg, #5a68d8 0%, #6a3f94 100%);
+  color: white;
+  opacity: 0.95;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #999;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .employer-dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-title-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-create-internship {
+    width: 100%;
+  }
+
+  .internships-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .internship-card-footer {
+    flex-direction: column;
+  }
+
+  .btn-edit,
+  .btn-applications {
+    width: 100%;
+  }
+}

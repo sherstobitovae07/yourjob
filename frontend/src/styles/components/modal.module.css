@@ -1,0 +1,71 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--color-backdrop, rgba(2, 6, 23, 0.6));
+}
+
+.container {
+  background: var(--modal-bg, #ffffff);
+  border-radius: var(--modal-radius, 12px);
+  padding: 24px;
+  width: var(--modal-width, 600px);
+  max-width: 90%;
+  box-shadow: var(--modal-shadow, 0 10px 40px rgba(2, 6, 23, 0.4));
+  z-index: calc(var(--modal-z, 1200) + 1);
+  color: var(--modal-text-color, #334155);
+}
+
+.title {
+  margin: 0 0 12px 0;
+  font-size: var(--font-size-lg, 18px);
+  color: var(--modal-title-color, #0f172a);
+}
+
+.description {
+  margin: 0;
+  color: var(--modal-text-color, #334155);
+  line-height: 1.4;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.btnCancel {
+  background: var(--color-input-background, #eef2ff);
+  color: var(--color-text-primary, #0f172a);
+}
+
+.btnDelete {
+  background: var(--color-danger, #ef4444);
+  color: var(--color-danger-contrast, #ffffff);
+}
+
+.error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #fee2e2;
+  color: var(--color-error, #dc2626);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--modal-z, 1200);
+}

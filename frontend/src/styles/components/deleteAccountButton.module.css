@@ -1,0 +1,18 @@
+.button {
+  margin-left: 12px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: var(--color-danger, #ef4444);
+  color: var(--color-danger-contrast, #fff);
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.small {
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 10px;
+}

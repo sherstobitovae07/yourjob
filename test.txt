@@ -1,0 +1,104 @@
+src/
+├── app/                          # Только роутинг, layouts и page.tsx (минимум логики!)
+│   ├── (auth)/                   # route group — не влияет на URL
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   └── register/
+│   │       └── page.tsx
+│   ├── (dashboard)/              # защищённый дашборд
+│   │   ├── layout.tsx            # общий layout + роль-based Navbar
+│   │   ├── page.tsx              # редирект по роли (Student / Employer / Admin)
+│   │   ├── admin/
+│   │   │   └── page.tsx
+│   │   ├── employer/
+│   │   │   ├── page.tsx
+│   │   │   ├── create-internship/
+│   │   │   └── [id]/             # edit internship
+│   │   ├── student/
+│   │   │   ├── page.tsx
+│   │   │   └── applications/
+│   │   └── profile/
+│   │       ├── student/
+│   │       └── employer/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx                  # главная (landing)
+│
+├── components/                   # Все React-компоненты
+│   ├── ui/                       # Примитивы и переиспользуемые UI (Button, Card, Modal, Table, Input, Badge и т.д.)
+│   ├── common/                   # Общие компоненты (Navbar, Footer, ErrorMessage, LoadingSpinner и т.д.)
+│   ├── dashboard/                # Компоненты дашборда
+│   │   ├── admin/
+│   │   │   ├── AdminStats.tsx
+│   │   │   ├── UsersList.tsx
+│   │   │   └── EmployersList.tsx
+│   │   ├── employer/
+│   │   │   ├── EmployerDashboard.tsx
+│   │   │   ├── CreateInternshipForm.tsx
+│   │   │   └── InternshipList.tsx
+│   │   └── student/
+│   │       ├── StudentDashboard.tsx
+│   │       └── ApplicationCard.tsx
+│   ├── internship/               # InternshipCard.tsx, InternshipDetailsModal.tsx и т.д.
+│   ├── application/              # ApplicationsModal.tsx и т.д.
+│   └── reports/                  # ReportsList.tsx и т.д.
+│
+├── hooks/                        # Все кастомные хуки
+│   ├── auth/
+│   │   ├── useAuth.ts
+│   │   ├── useLogin.ts
+│   │   └── useRegister.ts
+│   ├── profile/
+│   │   ├── useStudentProfile.ts
+│   │   └── useEmployerProfile.ts
+│   ├── internships/
+│   │   ├── useInternships.ts
+│   │   ├── useMyInternships.ts
+│   │   └── useCreateInternship.ts
+│   ├── applications/
+│   │   ├── useMyApplications.ts
+│   │   └── useCreateApplication.ts
+│   ├── admin/
+│   │   ├── useAdminStats.ts
+│   │   └── useUsers.ts
+│   └── reports/
+│       └── useReports.ts
+│
+├── services/                     # Все API-сервисы (Axios calls)
+│   ├── authService.ts
+│   ├── profileService.ts         # student + employer
+│   ├── internshipService.ts
+│   ├── applicationService.ts
+│   ├── adminService.ts
+│   └── reportService.ts
+│
+├── types/                        # Все TypeScript типы и интерфейсы
+│   ├── auth.ts
+│   ├── user.ts                   # UserResponse, UserRole и т.д.
+│   ├── profile.ts                # StudentProfileResponse, EmployerProfileResponse
+│   ├── internship.ts
+│   ├── application.ts
+│   ├── admin.ts
+│   ├── reports.ts
+│   └── index.ts                  # barrel export
+│
+├── lib/                          # Инфраструктура и конфиги
+│   ├── api/
+│   │   └── axiosClient.ts        # базовый клиент + interceptors
+│   └── constants/
+│       ├── roles.ts
+│       ├── apiRoutes.ts          # если хочешь централизовать пути
+│       └── index.ts
+│
+├── utils/                        # Общие утилиты (не привязанные к конкретной фиче)
+│   ├── cookies.ts
+│   ├── errorUtils.ts
+│   ├── dateUtils.ts
+│   ├── formatters.ts
+│   └── index.ts
+│
+├── styles/                       # Глобальные и модульные стили (можно постепенно переносить ближе к компонентам)
+│   ├── globals.css
+│   └── components/
+│
+└── config/                       # (опционально) конфиги, env и т.д.
