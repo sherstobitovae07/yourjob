@@ -59,6 +59,7 @@ def update_employer_profile(
     service = ProfileService(db)
     return service.update_employer_profile(current_user, data)
 
+<<<<<<< Updated upstream
 @router.delete("/me", response_model=MessageResponse)
 def delete_my_account(
     current_user: User = Depends(get_current_user),
@@ -138,3 +139,13 @@ async def upload_employer_photo(
     repository.refresh(employer)
 
     return MessageResponse(message="Фото работодателя успешно загружено")
+
+
+@router.get("/student/{student_id}", response_model=StudentProfileResponse)
+def get_student_profile_by_id(
+    student_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = ProfileService(db)
+    return service.get_student_profile_by_id(student_id, current_user)

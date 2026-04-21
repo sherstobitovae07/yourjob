@@ -1,9 +1,5 @@
 export type InternshipStatus = "ACTIVE" | "CLOSED" | "ARCHIVED";
 
-/**
- * Соответствует `InternshipPublicResponse` на бэкенде:
- * `GET /api/v1/internships/{internship_id}` и `GET /api/v1/internships`.
- */
 export type InternshipPublicResponse = {
   id: number;
   title: string | null;
@@ -15,5 +11,5 @@ export type InternshipPublicResponse = {
   deadline: string | null; // JSON date => строка (например "2026-03-23")
   created_at: string | null; // JSON timestamp => строка
   company_name: string | null;
+  image_url?: string | null;
 };
-

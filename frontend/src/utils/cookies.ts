@@ -1,12 +1,13 @@
 // Утилиты для работы с куками
 
-import { ACCESS_TOKEN_COOKIE } from '@/constants/auth';
+import { ACCESS_TOKEN_COOKIE } from '../constants/auth';
 
 export const setCookie = (name: string, value: string, days = 7, path = '/') => {
     if (typeof document === 'undefined') return;
   
     const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-    document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=${path}`;
+    const cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=${path}; samesite=lax`;
+    document.cookie = cookieString;
   };
   
   export const getCookie = (name: string): string | null => {

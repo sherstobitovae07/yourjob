@@ -1,18 +1,22 @@
+import Link from "next/link";
 import styles from "./page.module.css";
 import type { InternshipPublicResponse } from "@/types/internship";
 
 export const dynamic = "force-dynamic";
 
 async function getActiveInternships(): Promise<InternshipPublicResponse[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8001";
+  try {
+    const response = await fetch("http://127.0.0.1:8001/api/v1/internships", {
+      cache: "no-store",
+    });
 
-  const response = await fetch(`${baseUrl}/api/v1/internships`, {
-    cache: "no-store",
-  });
+    if (!response.ok) return [];
 
-  if (!response.ok) return [];
-
-  return (await response.json()) as InternshipPublicResponse[];
+    return (await response.json()) as InternshipPublicResponse[];
+  } catch (error) {
+    console.error("Error fetching internships:", error);
+    return [];
+  }
 }
 
 function getInternshipImage(title: string | null) {
@@ -57,6 +61,35 @@ function getInternshipImage(title: string | null) {
   return null;
 }
 
+function parseDateFromString(date: string | null) {
+  if (!date) return null;
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    const [, year, month, day] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+  const parsed = new Date(date);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatRuDate(date: Date | null) {
+  if (!date) return "";
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${day}.${month}.${date.getFullYear()}`;
+}
+
+function getFirstSentence(text: string | null | undefined): string {
+  if (!text) return "";
+
+  const match = text.match(/^[^.!?]*[.!?]/);
+  if (match) {
+    return match[0].trim();
+  }
+
+  return text.trim();
+}
+
 export default async function Home() {
   const internships = await getActiveInternships();
 
@@ -98,6 +131,14 @@ export default async function Home() {
             <div className={styles.internshipGrid}>
               {internships.map((item) => {
                 const imageUrl = getInternshipImage(item.title);
+                const deadlineDate = parseDateFromString(item.deadline || null);
+                const isExpired = deadlineDate ? deadlineDate < new Date() : false;
+                const displayStatus = isExpired ? "CLOSED" : item.status;
+                const statusLabel =
+                  displayStatus === "ACTIVE" ? "АКТИВНА" :
+                  displayStatus === "CLOSED" ? "ЗАКРЫТА" :
+                  displayStatus === "ARCHIVED" ? "В АРХИВЕ" :
+                  "НЕ УКАЗАНО";
 
                 return (
                   <article key={item.id} className={styles.internshipCard}>
@@ -120,16 +161,11 @@ export default async function Home() {
                         <h3 className={styles.internshipTitle}>
                           {item.title ?? ""}
                         </h3>
-                        <span className={styles.badge}>
-                          {item.status === "ACTIVE" && "АКТИВНА"}
-                          {item.status === "CLOSED" && "ЗАКРЫТА"}
-                          {item.status === "ARCHIVED" && "В АРХИВЕ"}
-                          {!item.status && "НЕ УКАЗАНО"}
-                        </span>
+                        <span className={styles.badge}>{statusLabel}</span>
                       </div>
                       {item.description && (
                         <p className={styles.internshipDescription}>
-                          {item.description}
+                          {getFirstSentence(item.description)}
                         </p>
                       )}
                       {item.direction && (
@@ -140,6 +176,11 @@ export default async function Home() {
                       {item.salary != null && (
                         <p className={styles.internshipSalary}>
                           {item.salary} ₽/мес
+                        </p>
+                      )}
+                      {item.deadline && (
+                        <p className={styles.internshipDeadline}>
+                          Крайний срок: {formatRuDate(deadlineDate) || item.deadline}
                         </p>
                       )}
                       {(item.city || item.company_name) && (
@@ -154,6 +195,12 @@ export default async function Home() {
                           Опубликовано {item.created_at.split("T")[0]}
                         </p>
                       )}
+
+                      <div className={styles.internshipCardActions}>
+                        <Link href="/auth" className={`${styles.roleBtn} ${styles.roleBtnActive}`}>
+                          Подробнее
+                        </Link>
+                      </div>
                     </div>
                   </article>
                 );

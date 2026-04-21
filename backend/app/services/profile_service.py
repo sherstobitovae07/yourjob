@@ -164,3 +164,36 @@ class ProfileService:
             website=employer.website,
             photo_path=employer.photo_path,
         )
+
+    def get_student_profile_by_id(self, student_id: int, current_user: User) -> StudentProfileResponse:
+        if current_user.role not in [UserRole.EMPLOYER, UserRole.ADMIN]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Доступ только для работодателей и администраторов",
+            )
+
+        student_user = self.profile_repository.get_user_by_id(student_id)
+        if not student_user or student_user.role != UserRole.STUDENT:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Студент не найден",
+            )
+
+        student = self.profile_repository.get_student_by_user_id(student_id)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Профиль студента не найден",
+            )
+
+        return StudentProfileResponse(
+            id=student_user.id,
+            email=student_user.email,
+            first_name=student_user.first_name,
+            last_name=student_user.last_name,
+            role=student_user.role,
+            university=student.university,
+            faculty=student.faculty,
+            specialty=student.specialty,
+            resume_path=student.resume_path,
+        )
