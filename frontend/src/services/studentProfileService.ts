@@ -57,4 +57,30 @@ export const studentProfileService = {
       throw error;
     }
   },
+  uploadPhoto: async (file: File): Promise<{ message: string }> => {
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await apiClient.post('/profile/student/me/photo', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    } catch (error) {
+      console.error('Error uploading student photo:', error);
+      throw error;
+    }
+  },
+  uploadResume: async (file: File): Promise<{ message: string }> => {
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await apiClient.post('/profile/student/me/resume', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    } catch (error) {
+      console.error('Error uploading student resume:', error);
+      throw error;
+    }
+  },
 };

@@ -54,6 +54,7 @@
   transition: transform var(--transition-base), box-shadow var(--transition-base);
   display: inline-flex;
   align-items: center;
+  text-transform: uppercase;
 }
 
 .card {
@@ -129,6 +130,7 @@
   font-size: 14px;
   border: none;
   cursor: pointer;
+  text-transform: uppercase;
 }
 
 .btnEdit {
@@ -140,6 +142,7 @@
   font-size: 14px;
   border: none;
   cursor: pointer;
+  text-transform: uppercase;
 }
 
 .mutedText {

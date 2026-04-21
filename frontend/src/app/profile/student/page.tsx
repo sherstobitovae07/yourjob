@@ -36,9 +36,23 @@ export default function MyStudentProfilePage() {
           faculty: data.faculty || "",
           specialty: data.specialty || "",
         });
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching profile:", err);
-        setError("Не удалось загрузить профиль");
+        // Попробуем извлечь сообщение ошибки от сервера (если есть)
+        let message = "Не удалось загрузить профиль";
+        try {
+          if (err?.response?.data) {
+            const data = err.response.data;
+            if (typeof data === 'string') message = data;
+            else if (data?.message) message = data.message;
+            else message = JSON.stringify(data);
+          } else if (err?.message) {
+            message = err.message;
+          }
+        } catch (e) {
+          // ignore parsing errors
+        }
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -56,14 +70,20 @@ export default function MyStudentProfilePage() {
       const selectedFile = fileInputRef.current?.files?.[0];
       let updated;
       if (selectedFile) {
-        const payload = new FormData();
-        payload.append("first_name", formData.first_name);
-        payload.append("last_name", formData.last_name);
-        payload.append("university", formData.university);
-        payload.append("faculty", formData.faculty);
-        payload.append("specialty", formData.specialty);
-        payload.append("resume_file", selectedFile);
-        updated = await studentProfileService.updateProfile(payload);
+        // Загрузка резюме через отдельный POST-эндпоинт
+        try {
+          await studentProfileService.uploadResume(selectedFile);
+          // После успешной загрузки резюме обновим остальные поля через PUT
+          updated = await studentProfileService.updateProfile({
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            university: formData.university,
+            faculty: formData.faculty,
+            specialty: formData.specialty,
+          });
+        } catch (e) {
+          throw e;
+        }
       } else {
         updated = await studentProfileService.updateProfile(formData);
       }

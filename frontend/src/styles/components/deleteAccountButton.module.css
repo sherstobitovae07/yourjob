@@ -9,10 +9,12 @@
   border: none;
   cursor: pointer;
   transition: transform var(--transition-base), box-shadow var(--transition-base);
+  text-transform: uppercase;
 }
 
 .small {
   padding: 8px 12px;
   font-size: 13px;
   border-radius: 10px;
+  text-transform: uppercase;
 }

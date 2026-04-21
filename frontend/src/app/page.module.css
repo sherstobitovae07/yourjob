@@ -255,6 +255,7 @@
   box-shadow: 0 6px 20px rgba(2, 132, 199, 0.17);
   transition: all 0.25s ease;
   cursor: pointer;
+  text-transform: uppercase;
 }
 
 .roleBtn:hover {
@@ -267,6 +268,31 @@
   color: #ffffff;
   border: 1px solid rgba(6, 182, 212, 0.35);
   box-shadow: 0 6px 20px rgba(6, 182, 212, 0.25);
+}
+
+/* Danger variant that matches the profile 'Удалить аккаунт' button (large size) */
+.roleBtnDanger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 260px;
+  height: 42px;
+  padding: 0 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.18);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.roleBtnDanger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.25);
 }
 
 .btn-create-internship {
@@ -711,7 +737,13 @@
   max-width: 1280px;
   margin: 0 auto 40px;
   padding: 0 10px;
+  position: relative;
 }
+
+/* When the employer (owner) views their own internship, add extra top spacing
+   so the large action buttons shown above the container do not overlap the
+   title or white content area. This only applies when `.owner-view` is set. */
+/* owner-view padding removed — buttons moved into the status row */
 
 :global(.internship-title) {
   margin: 0 0 16px 0;
@@ -734,7 +766,58 @@
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.14);
   padding: 32px 36px 28px;
   margin-bottom: 20px;
+  position: relative;
 }
+
+
+/* Detail view top-right small action buttons: positioned above white container */
+:global(.detail-action-buttons) {
+  position: absolute;
+  top: -18px;
+  right: 24px;
+  display: flex;
+  gap: 10px;
+  z-index: 40;
+}
+
+/* small variant of project role buttons */
+:global(.smallRoleBtn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  padding: 8px 14px;
+  height: 36px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid rgba(6, 182, 212, 0.18);
+  background: rgba(6, 182, 212, 0.06);
+  color: #0f172a;
+  transition: all 0.18s ease;
+  text-transform: uppercase;
+}
+
+:global(.smallRoleBtn:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(6,182,212,0.12);
+}
+
+:global(.smallRoleBtn.danger) {
+  /* red filled style to match profile 'Удалить аккаунт' */
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ffffff;
+}
+
+:global(.smallRoleBtn.primary) {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  color: #ffffff;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.25);
+}
+
 
 :global(.internship-image-wrap) {
   width: 100%;

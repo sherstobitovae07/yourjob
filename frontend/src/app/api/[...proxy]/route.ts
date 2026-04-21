@@ -102,6 +102,23 @@ async function handleProxy(
       });
     }
 
+    // Попробуем корректно декодировать body, если это JSON
+    const contentType = response.headers['content-type'] || '';
+    let body: any = response.data;
+    try {
+      if (contentType.includes('application/json')) {
+        const str = Buffer.from(response.data).toString('utf8');
+        try {
+          body = JSON.parse(str);
+        } catch (e) {
+          body = str;
+        }
+        return NextResponse.json(body, { status: response.status, headers: responseHeaders });
+      }
+    } catch (e) {
+      // ignore and fallthrough
+    }
+
     return new NextResponse(response.data, {
       status: response.status,
       headers: responseHeaders,
@@ -129,10 +146,26 @@ async function handleProxy(
         errorHeaders[key] = backendResponse.headers[key];
       });
 
-      return new NextResponse(backendResponse.data, {
-        status: backendResponse.status,
-        headers: errorHeaders,
-      });
+        // Попробуем декодировать JSON из arraybuffer если нужно
+        const contentType = backendResponse.headers['content-type'] || '';
+        try {
+          if (contentType.includes('application/json')) {
+            const str = Buffer.from(backendResponse.data).toString('utf8');
+            try {
+              const parsed = JSON.parse(str);
+              return NextResponse.json(parsed, { status: backendResponse.status, headers: errorHeaders });
+            } catch (e) {
+              return new NextResponse(str, { status: backendResponse.status, headers: errorHeaders });
+            }
+          }
+        } catch (e) {
+          // fallthrough
+        }
+
+        return new NextResponse(backendResponse.data, {
+          status: backendResponse.status,
+          headers: errorHeaders,
+        });
     } else if (error.code === 'ECONNREFUSED') {
       return NextResponse.json({ message: 'Backend service unavailable' }, { status: 503 });
     } else if (error.code === 'ETIMEDOUT') {
@@ -178,7 +211,8 @@ async function getRequestBody(request: NextRequest): Promise<unknown> {
   }
 
   if (contentType.includes('multipart/form-data')) {
-    return await request.formData();
+    // Forward multipart as raw ArrayBuffer so axios on node can send it with original boundary
+    return await request.arrayBuffer();
   } else if (contentType.includes('application/json')) {
     return await request.json();
   } else if (contentType.includes('application/x-www-form-urlencoded')) {

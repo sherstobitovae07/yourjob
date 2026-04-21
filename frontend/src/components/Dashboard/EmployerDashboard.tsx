@@ -126,12 +126,6 @@ export default function EmployerDashboard() {
                     </p>
                     {!isActiveTab && (
                       <div className={styles.internshipCardFooter}>
-                        <Link
-                          href={`/dashboard/employer/edit/${internship.id}`}
-                          className={`${styles.roleBtn} ${styles.roleBtnActive} ${styles.employerActionBtn}`}
-                        >
-                          Редактировать
-                        </Link>
                         <button
                           type="button"
                           className={`${styles.roleBtn} ${styles.roleBtnActive} ${styles.employerActionBtn}`}
@@ -163,6 +157,7 @@ export default function EmployerDashboard() {
           onClose={() => setSelectedInternshipForApps(null)}
         />
       )}
+      
     </main>
   );
 }

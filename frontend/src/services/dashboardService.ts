@@ -25,6 +25,10 @@ export const dashboardService = {
     const res = await apiClient.get("/profile/employer/me");
     return res.data;
   },
+  getStudentProfileById: async (studentId: number): Promise<StudentProfileResponse> => {
+    const res = await apiClient.get(`/profile/student/${studentId}`);
+    return res.data;
+  },
   getActiveInternships: async (): Promise<InternshipPublicResponse[]> => {
     const res = await apiClient.get("/internships");
     return res.data;
@@ -56,6 +60,18 @@ export const dashboardService = {
   },
   updateMyInternship: async (internship_id: number, payload: InternshipUpdateRequest): Promise<InternshipResponse> => {
     const res = await apiClient.put(`/internships/my/${internship_id}`, payload);
+    return res.data;
+  },
+  deleteMyInternship: async (internship_id: number): Promise<void> => {
+    const res = await apiClient.delete(`/internships/my/${internship_id}`);
+    return res.data;
+  },
+  uploadEmployerPhoto: async (file: File): Promise<{ message: string }> => {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await apiClient.post('/profile/employer/me/photo', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return res.data;
   },
   getPublicInternshipById: async (internship_id: number): Promise<InternshipPublicResponse> => {

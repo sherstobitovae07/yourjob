@@ -7,6 +7,7 @@ import { dashboardService } from "../../../../services/dashboardService";
 import { getHttpErrorMessage } from "../../../../utils/errorUtils";
 import type { InternshipPublicResponse } from "../../../../types/dashboard";
 import styles from "@/app/page.module.css";
+import DeleteInternshipModal from "@/components/Profile/DeleteInternshipModal";
 function getInternshipImage(title: string | null) {
   if (
     title?.includes("организации мероприятий") ||
@@ -61,6 +62,8 @@ export default function InternshipDetailsPage() {
   const [applySuccess, setApplySuccess] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"STUDENT" | "EMPLOYER" | null>(null);
   const [hasApplied, setHasApplied] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -82,6 +85,15 @@ export default function InternshipDetailsPage() {
         setError(null);
         const internshipData = await dashboardService.getPublicInternshipById(internshipId);
         setInternship(internshipData);
+        // if user is employer, try to fetch my internship by id — success means current user is owner
+        if (userRole === "EMPLOYER") {
+          try {
+            await dashboardService.getMyInternshipById(internshipId);
+            setIsOwner(true);
+          } catch {
+            setIsOwner(false);
+          }
+        }
         if (userRole === "STUDENT") {
           const applications = await dashboardService.getMyApplications();
           setHasApplied(applications.some((app) => app.internship_id === internshipId));
@@ -200,13 +212,22 @@ export default function InternshipDetailsPage() {
   const imageUrl = getInternshipImage(internship.title);
   return (
     <main className={styles.main} style={{ paddingTop: "60px" }}>
-      <div className="internship-container">
+      <div className={`internship-container ${isOwner ? 'owner-view' : ''}`}>
         <h1 className="internship-title">{internship.title}</h1>
+        {/* owner actions moved into the status row below; status badge removed from details */}
+
         <div className="internship-white-container">
           <div className="internship-status-row">
-            <span className={`status-badge ${statusClassName}`}>
-              {statusLabel}
-            </span>
+            {isOwner ? (
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <Link href={`/dashboard/employer/edit/${internship?.id}`} className={`${styles.roleBtn} ${styles.roleBtnActive}`}>
+                  Редактировать
+                </Link>
+                <button className={`${styles.roleBtn} ${styles.roleBtnDanger}`} onClick={() => setShowDeleteModal(true)}>
+                  Удалить
+                </button>
+              </div>
+            ) : null}
           </div>
           <div className="internship-image-wrap">
             <div className="internship-image-frame">
@@ -288,6 +309,18 @@ export default function InternshipDetailsPage() {
             </div>
           </div>
         </div>
+      )}
+      {showDeleteModal && internship && (
+        <DeleteInternshipModal
+          open={true}
+          internshipId={internship.id}
+          onClose={() => setShowDeleteModal(false)}
+          onDeleted={() => {
+            // After deletion redirect to employer dashboard
+            setShowDeleteModal(false);
+            router.push("/dashboard/employer");
+          }}
+        />
       )}
     </main>
   );
