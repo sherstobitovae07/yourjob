@@ -15,7 +15,12 @@ class Student(Base):
     photo_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     user = relationship("User", back_populates="student")
-    applications = relationship("Application", back_populates="student")
+    applications = relationship(
+        "Application",
+        back_populates="student",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     verification_status: Mapped[VerificationStatus | None] = mapped_column(
         Enum(VerificationStatus, name="verification_status"),

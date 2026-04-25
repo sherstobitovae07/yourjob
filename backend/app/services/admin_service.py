@@ -12,6 +12,7 @@ from app.schemas.admin import (
     AdminUserResponse,
 )
 from app.models.enums import VerificationStatus
+from app.services.email_service import EmailService
 
 class AdminService:
     def __init__(self, db: Session):
@@ -197,6 +198,10 @@ class AdminService:
         student.verification_comment = None
         self.repository.save_student(student)
 
+        if student.user and student.user.email:
+            EmailService.send_student_approved(student.user.email)
+
+
     def reject_student(
             self,
             current_user: User,
@@ -215,6 +220,12 @@ class AdminService:
         student.verification_status = VerificationStatus.REJECTED
         student.verification_comment = data.comment
         self.repository.save_student(student)
+
+        if student.user and student.user.email:
+            EmailService.send_student_rejected(
+                student.user.email,
+                data.comment,
+            )
 
     def get_student_by_id(self, current_user: User, student_id: int) -> AdminStudentResponse:
         self._check_admin_access(current_user)

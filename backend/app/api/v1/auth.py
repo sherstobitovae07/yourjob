@@ -11,7 +11,7 @@ from app.schemas.auth import (
 )
 from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService
-
+from app.schemas.auth import EmailVerifyRequest, MessageResponse
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -47,3 +47,12 @@ def login(
 @router.get("/me", response_model=UserResponse)
 def me(current_user=Depends(get_current_user)):
     return current_user
+
+@router.post("/verify-email", response_model=MessageResponse)
+def verify_email(
+    data: EmailVerifyRequest,
+    db: Session = Depends(get_db),
+):
+    service = AuthService(db)
+    service.verify_email(data.email, data.code)
+    return MessageResponse(message="Email подтвержден")
