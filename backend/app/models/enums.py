@@ -17,3 +17,8 @@ class InternshipStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
     CLOSED = "CLOSED"
     ARCHIVED = "ARCHIVED"
+
+class VerificationStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"

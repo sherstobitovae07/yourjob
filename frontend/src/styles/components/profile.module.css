@@ -1,6 +1,6 @@
 .main {
   min-height: 100vh;
-  padding: 100px 24px 40px;
+  padding: 20px 24px 40px;
   background: linear-gradient(135deg, var(--color-background-primary) 0%, var(--color-background-secondary) 100%);
   color: var(--color-text-primary);
 }
@@ -14,7 +14,7 @@
   margin-bottom: 32px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 24px;
 }
 
@@ -31,15 +31,57 @@
 }
 
 .subtitle {
-  margin-top: 12px;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
+  margin-top: 8px;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 700;
 }
 
 .topActions {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+.topActionsColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* Compact badge styled similar to navbar buttons (semi-transparent dark) */
+.statusBadge {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #ffffff;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+}
+.statusPending {
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.statusApproved {
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.statusRejected {
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.statusContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 40px;
 }
 
 .linkButton {
@@ -66,8 +108,19 @@
   box-shadow: var(--shadow-md);
 }
 
+/* make card content layout flexible so cards can stretch to equal heights in grids */
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* utility to make a card stretch to full height of grid row */
+.fullHeight {
+  height: 100%;
+}
+
 .cardTitle {
-  margin: 0 0 24px 0;
+  margin: 0;
   color: #0f172a;
   font-size: 20px;
   font-weight: 700;
@@ -207,6 +260,148 @@
   cursor: pointer;
 }
 
+/* visually hide inputs but keep them accessible and activatable by label */
+.visuallyHidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .actionsRight > button {
   flex: 1;
+}
+
+/* Profile page layout */
+.gridContainer {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.sidebarCard {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.photoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.photoImage {
+  width: 320px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.photoPlaceholder {
+  width: 320px;
+  height: 320px;
+  background: #f3f4f6;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.studentName {
+  margin: 8px 0 8px 0;
+  font-size: 20px;
+  color: #0f172a;
+  font-weight: 700;
+  text-align: center;
+}
+
+.studentEmail {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.profileRightColumn {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.profileCard {
+  height: 100%;
+}
+
+.profileHeader {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.profileContent {
+  display: grid;
+  gap: 20px;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.infoBoxContainer {
+  margin-top: 16px;
+}
+
+/* Photo upload button styles */
+.photoContainerWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.uploadPhotoButton {
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-button-primary-gradient);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.uploadPhotoButton:hover {
+  transform: translateX(-50%) scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.uploadPhotoButton:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+.uploadPhotoIcon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

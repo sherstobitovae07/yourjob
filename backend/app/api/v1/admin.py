@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user, require_admin
+from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
 from app.schemas.admin import (
     AdminEmployerResponse,
     AdminStatsResponse,
+    AdminStudentRejectRequest,
+    AdminStudentResponse,
     AdminUserResponse,
 )
 from app.services.admin_service import AdminService
@@ -17,7 +19,7 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 
 @router.get("/users", response_model=list[AdminUserResponse])
 def get_all_users(
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     service = AdminService(db)
@@ -26,7 +28,7 @@ def get_all_users(
 
 @router.get("/employers", response_model=list[AdminEmployerResponse])
 def get_all_employers(
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     service = AdminService(db)
@@ -35,7 +37,7 @@ def get_all_employers(
 
 @router.get("/stats", response_model=AdminStatsResponse)
 def get_stats(
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     service = AdminService(db)
@@ -70,3 +72,49 @@ def delete_application(
     service = AdminService(db)
     service.delete_application(current_user, application_id)
     return MessageResponse(message="Отклик удален")
+
+@router.get("/students")
+def get_students(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    return service.get_all_students(current_user)
+
+@router.get("/students/pending", response_model=list[AdminStudentResponse])
+def get_pending_students(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    return service.get_pending_students(current_user)
+
+@router.get("/students/{student_id}", response_model=AdminStudentResponse)
+def get_student_by_id(
+    student_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    return service.get_student_by_id(current_user, student_id)
+
+@router.patch("/students/{student_id}/approve", response_model=MessageResponse)
+def approve_student(
+    student_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    service.approve_student(current_user, student_id)
+    return MessageResponse(message="Профиль студента подтвержден")
+
+@router.patch("/students/{student_id}/reject", response_model=MessageResponse)
+def reject_student(
+    student_id: int,
+    data: AdminStudentRejectRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    service.reject_student(current_user, student_id, data)
+    return MessageResponse(message="Профиль студента отклонен")

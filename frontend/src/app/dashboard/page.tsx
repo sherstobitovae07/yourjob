@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { dashboardService } from "../../services/dashboardService";
-import { logout } from "../../services/authService";
+import { dashboardService } from '@/services/dashboardService';
+import { logout } from '@/services/authService';
 
 export default function DashboardEntry() {
   const router = useRouter();

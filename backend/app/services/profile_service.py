@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.models.enums import UserRole
+from app.models.enums import UserRole, VerificationStatus
 from app.models.user import User
 from app.repositories.profile_repository import ProfileRepository
 from app.schemas.user import (
@@ -41,6 +41,8 @@ class ProfileService:
             specialty=student.specialty,
             resume_path=student.resume_path,
             photo_path=student.photo_path,
+            verification_status=student.verification_status,
+            verification_comment=student.verification_comment,
         )
 
     def update_student_profile(
@@ -90,6 +92,8 @@ class ProfileService:
             specialty=student.specialty,
             resume_path=student.resume_path,
             photo_path=student.photo_path,
+            verification_status=student.verification_status,
+            verification_comment=student.verification_comment,
         )
 
     def get_employer_profile(self, current_user: User) -> EmployerProfileResponse:
@@ -165,35 +169,74 @@ class ProfileService:
             photo_path=employer.photo_path,
         )
 
-    def get_student_profile_by_id(self, student_id: int, current_user: User) -> StudentProfileResponse:
-        if current_user.role not in [UserRole.EMPLOYER, UserRole.ADMIN]:
+    def submit_student_profile_for_verification(self, current_user: User) -> StudentProfileResponse:
+        if current_user.role != UserRole.STUDENT:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Доступ только для работодателей и администраторов",
+                detail="Доступ только для студентов",
             )
 
-        student_user = self.profile_repository.get_user_by_id(student_id)
-        if not student_user or student_user.role != UserRole.STUDENT:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Студент не найден",
-            )
-
-        student = self.profile_repository.get_student_by_user_id(student_id)
+        student = self.profile_repository.get_student_by_user_id(current_user.id)
         if not student:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Профиль студента не найден",
             )
 
+        if not current_user.first_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Заполните имя",
+            )
+
+        if not current_user.last_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Заполните фамилию",
+            )
+
+        if not student.university:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Заполните университет",
+            )
+
+        if not student.faculty:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Заполните факультет",
+            )
+
+        if not student.specialty:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Заполните специальность",
+            )
+
+        if not student.resume_path:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Загрузите резюме",
+            )
+
+        student.verification_status = VerificationStatus.PENDING
+        student.verification_comment = None
+
+        self.profile_repository.commit()
+        self.profile_repository.refresh(student)
+        self.profile_repository.refresh(current_user)
+
         return StudentProfileResponse(
-            id=student_user.id,
-            email=student_user.email,
-            first_name=student_user.first_name,
-            last_name=student_user.last_name,
-            role=student_user.role,
+            id=current_user.id,
+            email=current_user.email,
+            first_name=current_user.first_name,
+            last_name=current_user.last_name,
+            role=current_user.role,
             university=student.university,
             faculty=student.faculty,
             specialty=student.specialty,
             resume_path=student.resume_path,
+            photo_path=student.photo_path,
+            verification_status=student.verification_status,
+            verification_comment=student.verification_comment,
         )

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { dashboardService } from "@/services/dashboardService";
+import { useState } from 'react';
+import { adminService } from '@/services/adminService';
+import { getHttpErrorMessage } from '@/utils/errorUtils';
 
-export const useDeleteInternship = () => {
+export default function useDeleteInternship() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,19 +12,14 @@ export const useDeleteInternship = () => {
     setLoading(true);
     setError(null);
     try {
-      await dashboardService.deleteMyInternship(internshipId);
+      await adminService.deleteInternship(internshipId);
     } catch (err) {
-      console.error("deleteInternship error", err);
-      const anyErr = err as any;
-      const serverMsg = anyErr?.response?.data?.detail || anyErr?.response?.data?.message || anyErr?.message;
-      setError(serverMsg || "Ошибка при удалении стажировки");
-      throw err;
+      const msg = getHttpErrorMessage(err, 'Ошибка при удалении стажировки');
+      setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return { deleteInternship, loading, error };
-};
-
-export default useDeleteInternship;
+}

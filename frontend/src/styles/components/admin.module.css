@@ -224,6 +224,20 @@
   overflow-x: auto;
 }
 
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease, transform 0.12s ease;
+}
+.iconButton:hover {
+  background-color: rgba(0,0,0,0.04);
+  transform: translateY(-1px);
+}
+
 .reportsList {
   display: grid;
   grid-template-columns: 1fr;
@@ -335,6 +349,51 @@
   color: #06b6d4;
   border-bottom-color: #06b6d4;
 }
+
+/* review icon next to status */
+.reviewIcon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  cursor: pointer;
+  opacity: 0.95;
+}
+
+/* status cell layout - keep icon aligned in same column */
+.statusCell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.statusText {
+  color: #111827; /* darker text */
+  font-weight: 500;
+}
+.statusIcon { width: 28px; flex: 0 0 28px; display:flex; align-items:center; justify-content:center; }
+
+/* modal */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+.modal {
+  background: white;
+  border-radius: 12px;
+  width: min(720px, 95%);
+  padding: 16px;
+  box-shadow: 0 10px 40px rgba(2,6,23,0.2);
+  color: #0f172a; /* ensure dark text inside modal */
+}
+.modal p, .modal strong, .modal h3, .modal a { color: #0f172a; }
+.modalHeader { padding-bottom: 8px; border-bottom: 1px solid #eee; margin-bottom: 12px; }
+.modalBody { max-height: 60vh; overflow: auto; padding: 8px 0; }
+.modalActions { display:flex; gap:12px; justify-content: flex-end; padding-top: 12px; }
 
 @media (max-width: 768px) {
   .adminContainer {

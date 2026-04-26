@@ -9,6 +9,9 @@ export interface StudentProfile {
   faculty: string | null;
   specialty: string | null;
   resume_path: string | null;
+  photo_path?: string | null;
+  // optional verification status from backend: APPROVED | PENDING | REJECTED
+  verification_status?: string | null;
 }
 export interface StudentProfileUpdateRequest {
   first_name?: string;

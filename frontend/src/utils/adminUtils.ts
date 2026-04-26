@@ -1,4 +1,4 @@
-import { AdminUser, AdminEmployer } from '../types/admin';
+import { AdminUser, AdminEmployer, AdminStudent } from '../types/admin';
 
 export const formatDate = (dateString: string | null): string => {
   if (!dateString) return 'Не указана';
@@ -94,5 +94,16 @@ export const filterEmployers = (employers: AdminEmployer[], searchTerm: string):
       (employer.first_name && employer.first_name.toLowerCase().includes(term)) ||
       (employer.last_name && employer.last_name.toLowerCase().includes(term)) ||
       (employer.company_name && employer.company_name.toLowerCase().includes(term))
+  );
+};
+
+export const filterStudents = (students: AdminStudent[], searchTerm: string): AdminStudent[] => {
+  const term = searchTerm.toLowerCase();
+  return students.filter(
+    (student) =>
+      student.email.toLowerCase().includes(term) ||
+      (student.first_name && student.first_name.toLowerCase().includes(term)) ||
+      (student.last_name && student.last_name.toLowerCase().includes(term)) ||
+      (student.university && student.university.toLowerCase().includes(term))
   );
 };

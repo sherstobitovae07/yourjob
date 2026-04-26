@@ -5,6 +5,7 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { studentProfileService } from "@/services/studentProfileService";
 import type { StudentProfile } from "@/services/studentProfileService";
+import { getFileUrl } from "@/utils/fileHelper";
 
 interface StudentProfilePageProps {
   params: Promise<{ id: string }>;
@@ -168,7 +169,7 @@ export default function StudentProfilePage({ params, searchParams }: StudentProf
                 </div>
                 {displayProfile.resume_path && (
                   <button
-                    onClick={() => window.open(displayProfile.resume_path!, "_blank")}
+                    onClick={() => window.open(getFileUrl(displayProfile.resume_path!), "_blank")}
                     style={{
                       padding: "10px 18px",
                       borderRadius: "12px",

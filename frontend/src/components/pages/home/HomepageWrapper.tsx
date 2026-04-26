@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "../utils/authHelper";
-import { dashboardService } from "../services/dashboardService";
-import { logout } from "../services/authService";
+import { isAuthenticated } from '@/utils/authHelper';
+import { dashboardService } from '@/services/dashboardService';
+import { logout } from '@/services/authService';
 interface HomepageWrapperProps {
   children: React.ReactNode;
 }

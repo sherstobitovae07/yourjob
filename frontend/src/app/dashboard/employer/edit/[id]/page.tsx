@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
-import CreateInternshipPage from "../../../../../components/Dashboard/CreateInternshipPage";
-import { dashboardService } from "../../../../../services/dashboardService";
-import { getHttpErrorMessage } from "../../../../../utils/errorUtils";
-import type { InternshipResponse } from "../../../../../types/dashboard";
+import CreateInternshipPage from "@/components/Dashboard/internship/CreateInternshipPage";
+import { dashboardService } from "@/services/dashboardService";
+import { getHttpErrorMessage } from "@/utils/errorUtils";
+import type { InternshipResponse } from "@/types/dashboard";
 export default function EmployerEditPage() {
   const params = useParams();
   const router = useRouter();

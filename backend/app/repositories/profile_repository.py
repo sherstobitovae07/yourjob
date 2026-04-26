@@ -9,9 +9,6 @@ class ProfileRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_user_by_id(self, user_id: int) -> User | None:
-        return self.db.query(User).filter(User.id == user_id).first()
-
     def get_student_by_user_id(self, user_id: int) -> Student | None:
         return self.db.query(Student).filter(Student.id == user_id).first()
 
@@ -42,7 +39,10 @@ class ProfileRepository:
         student.university = university
         student.faculty = faculty
         student.specialty = specialty
-        student.resume_path = resume_path
+        # Only update resume_path when an explicit value is provided.
+        # This prevents accidental clearing when update requests omit the field.
+        if resume_path is not None:
+            student.resume_path = resume_path
         self.db.add(student)
         return student
 

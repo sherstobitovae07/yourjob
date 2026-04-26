@@ -1,4 +1,4 @@
-import StudentPageClient from "../../../components/Dashboard/StudentPageClient";
+import StudentPageClient from "../../../components/Dashboard/student/StudentPageClient";
 export default function StudentPage() {
   return <StudentPageClient />;
 }

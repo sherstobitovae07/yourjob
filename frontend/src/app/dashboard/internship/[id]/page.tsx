@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { dashboardService } from "../../../../services/dashboardService";
-import { getHttpErrorMessage } from "../../../../utils/errorUtils";
-import type { InternshipPublicResponse } from "../../../../types/dashboard";
+import { dashboardService } from '@/services/dashboardService';
+import { getHttpErrorMessage } from '@/utils/errorUtils';
+import type { InternshipPublicResponse } from '@/types/dashboard';
 import styles from "@/app/page.module.css";
 import DeleteInternshipModal from "@/components/Profile/DeleteInternshipModal";
 function getInternshipImage(title: string | null) {
