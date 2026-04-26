@@ -20,6 +20,7 @@ app = FastAPI(
 FileService.ensure_dirs()
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
+<<<<<<< HEAD
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
@@ -35,6 +36,11 @@ def on_startup():
         except Exception:
             # Don't fail startup for schema adjustment errors; log is shown by engine
             pass
+=======
+# @app.on_event("startup")
+# def on_startup():
+#     Base.metadata.create_all(bind=engine)
+>>>>>>> 9c30c4ca547e17013a8958a9c4112d2981dd2c4c
 
 
 app.include_router(auth_router, prefix="/api/v1")
@@ -43,7 +49,6 @@ app.include_router(internships_router, prefix="/api/v1")
 app.include_router(applications_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
-
 
 @app.get("/")
 def root():

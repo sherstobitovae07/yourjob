@@ -93,3 +93,6 @@ class AdminRepository:
         self.db.commit()
         self.db.refresh(student)
         return student
+
+    def get_internship_by_id(self, internship_id: int) -> Internship | None:
+        return self.db.query(Internship).filter(Internship.id == internship_id).first()

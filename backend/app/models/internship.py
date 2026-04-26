@@ -24,4 +24,9 @@ class Internship(Base):
     created_at: Mapped[str] = mapped_column(TIMESTAMP, server_default=func.current_timestamp())
 
     employer = relationship("Employer", back_populates="internships")
-    applications = relationship("Application", back_populates="internship")
+    applications = relationship(
+        "Application",
+        back_populates="internship",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )

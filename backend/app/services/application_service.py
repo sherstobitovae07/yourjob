@@ -12,6 +12,7 @@ from app.schemas.application import (
     StudentApplicationResponse,
 )
 from app.models.enums import VerificationStatus
+from app.services.email_service import EmailService
 
 class ApplicationService:
     def __init__(self, db: Session):
@@ -198,6 +199,22 @@ class ApplicationService:
 
         application.status = data.status
         application = self.repository.save(application)
+
+        student_email = None
+        internship_title = None
+
+        if application.student and application.student.user:
+            student_email = application.student.user.email
+
+        if application.internship:
+            internship_title = application.internship.title
+
+        if student_email and internship_title:
+            EmailService.send_application_status_changed(
+                to_email=student_email,
+                internship_title=internship_title,
+                status=application.status.value,
+            )
 
         return ApplicationResponse(
             id=application.id,

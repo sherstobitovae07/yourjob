@@ -14,4 +14,9 @@ class Employer(Base):
     photo_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     user = relationship("User", back_populates="employer")
-    internships = relationship("Internship", back_populates="employer")
+    internships = relationship(
+        "Internship",
+        back_populates="employer",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
