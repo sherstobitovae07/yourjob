@@ -20,7 +20,6 @@ app = FastAPI(
 FileService.ensure_dirs()
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
-<<<<<<< HEAD
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
@@ -29,18 +28,17 @@ def on_startup():
     with engine.connect() as conn:
         try:
             conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS photo_path VARCHAR(500);"))
-            # If enum type is missing or mismatched, create a varchar fallback column
+            # Ensure verification fields exist (varchar/text used as safe fallback)
             conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50);"))
             conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS verification_comment TEXT;"))
+            # Ensure new user fields exist (email verification columns)
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_email_verified BOOLEAN NOT NULL DEFAULT FALSE;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_code VARCHAR(6);"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_expires_at TIMESTAMP;"))
             conn.commit()
         except Exception:
-            # Don't fail startup for schema adjustment errors; log is shown by engine
+            # Do not fail startup for non-critical schema adjustments
             pass
-=======
-# @app.on_event("startup")
-# def on_startup():
-#     Base.metadata.create_all(bind=engine)
->>>>>>> 9c30c4ca547e17013a8958a9c4112d2981dd2c4c
 
 
 app.include_router(auth_router, prefix="/api/v1")

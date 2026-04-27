@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { studentProfileService, type StudentProfile } from "../../../services/studentProfileService";
+import ResubmitForVerificationButton from '../../../components/Profile/ResubmitForVerificationButton';
 import { getFileUrl } from "../../../utils/fileHelper";
 import DeleteAccountButton from '../../../components/Profile/DeleteAccountButton';
 import styles from '@/styles/components/profile.module.css';
@@ -53,6 +54,19 @@ export default function MyStudentProfilePage() {
     };
     fetchProfile();
   }, []);
+
+  const refreshProfile = async () => {
+    try {
+      setLoading(true);
+      const data = await studentProfileService.getProfile();
+      setProfile(data);
+    } catch (err: any) {
+      console.error('Error refreshing profile:', err);
+      setError(err?.message || 'Не удалось обновить профиль');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -160,9 +174,18 @@ export default function MyStudentProfilePage() {
               const st = String(profile.verification_status).toUpperCase();
               if (st === 'PENDING') return <div className={`${styles.statusBadge} ${styles.statusPending}`}>Аккаунт ожидает одобрения</div>;
               if (st === 'APPROVED') return <div className={`${styles.statusBadge} ${styles.statusApproved}`}>Аккаунт одобрен</div>;
-              if (st === 'REJECTED') return <div className={`${styles.statusBadge} ${styles.statusRejected}`}>Аккаунт отклонён</div>;
+              if (st === 'REJECTED') {
+                const comment = profile.verification_comment ? `, причина: ${profile.verification_comment}` : '';
+                return <div className={`${styles.statusBadge} ${styles.statusRejected}`}>Аккаунт отклонен{comment}</div>;
+              }
               return <div className={styles.statusBadge}>{profile.verification_status}</div>;
             })()}
+            {/* resubmit button only when rejected */}
+            {String(profile.verification_status).toUpperCase() === 'REJECTED' ? (
+              <div style={{ marginLeft: 12 }}>
+                <ResubmitForVerificationButton onSuccess={refreshProfile} />
+              </div>
+            ) : null}
           </div>
         ) : null}
 

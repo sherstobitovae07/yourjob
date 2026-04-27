@@ -12,6 +12,8 @@ export interface StudentProfile {
   photo_path?: string | null;
   // optional verification status from backend: APPROVED | PENDING | REJECTED
   verification_status?: string | null;
+  // optional comment left by admin when rejecting verification
+  verification_comment?: string | null;
 }
 export interface StudentProfileUpdateRequest {
   first_name?: string;
@@ -83,6 +85,16 @@ export const studentProfileService = {
       return res.data;
     } catch (error) {
       console.error('Error uploading student resume:', error);
+      throw error;
+    }
+  },
+  // submit current student's profile for verification (resend)
+  submitForVerification: async (): Promise<StudentProfile> => {
+    try {
+      const res = await apiClient.post('/profile/student/me/submit-for-verification');
+      return res.data;
+    } catch (error) {
+      console.error('Error submitting profile for verification:', error);
       throw error;
     }
   },

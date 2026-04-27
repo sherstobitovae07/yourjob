@@ -53,4 +53,17 @@ export const employerProfileService = {
       throw error;
     }
   },
+  uploadPhoto: async (file: File): Promise<{ message: string }> => {
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await apiClient.post('/profile/employer/me/photo', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    } catch (error) {
+      console.error('Error uploading employer photo:', error);
+      throw error;
+    }
+  },
 };

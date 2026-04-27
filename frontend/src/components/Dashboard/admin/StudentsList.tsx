@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import styles from '@/styles/components/admin.module.css';
+import StudentVerificationForm from './StudentVerificationForm';
 import { AdminStudent } from '@/types/admin';
 import { formatDate, getFullName, filterStudents } from '@/utils/adminUtils';
 import { getFileUrl } from '@/utils/fileHelper';
@@ -12,6 +13,9 @@ interface StudentsListProps {
 }
 
 export const StudentsList: React.FC<StudentsListProps> = ({ students }) => {
+  // keep a local copy so we can update statuses without requiring parent refresh
+  const [localStudents, setLocalStudents] = useState<AdminStudent[]>(students);
+  useEffect(() => setLocalStudents(students), [students]);
   const [searchTerm, setSearchTerm] = useState('');
   const [pendingOnly, setPendingOnly] = useState(false);
   const [pendingStudents, setPendingStudents] = useState<AdminStudent[] | null>(null);
@@ -23,9 +27,9 @@ export const StudentsList: React.FC<StudentsListProps> = ({ students }) => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const filteredStudents = useMemo(() => {
-    const source = pendingOnly ? (pendingStudents ?? []) : students;
+    const source = pendingOnly ? (pendingStudents ?? []) : localStudents;
     return filterStudents(source, searchTerm);
-  }, [students, pendingOnly, pendingStudents, searchTerm]);
+  }, [localStudents, pendingOnly, pendingStudents, searchTerm]);
 
   if (filteredStudents.length === 0 && students.length === 0) {
     return (
@@ -181,57 +185,22 @@ export const StudentsList: React.FC<StudentsListProps> = ({ students }) => {
                   ) : (
                     <p style={{ color: '#6b7280' }}>Резюме не загружено</p>
                   )}
+
+                  <StudentVerificationForm
+                    studentId={selectedStudent.id}
+                    onUpdated={async (status, comment) => {
+                      // update local state and lists
+                      const id = selectedStudent.id;
+                      setSelectedStudent((s) => s ? ({ ...s, verification_status: status === 'APPROVED' ? 'APPROVED' : 'REJECTED', verification_comment: comment ?? s.verification_comment }) : s);
+                      // remove from pending list
+                      setPendingStudents((list) => list ? list.filter(x => x.id !== id) : list);
+                      // update main list so status reflects immediately
+                      setLocalStudents((list) => list.map(x => x.id === id ? ({ ...x, verification_status: status === 'APPROVED' ? 'APPROVED' : 'REJECTED', verification_comment: comment ?? x.verification_comment }) : x));
+                      setReviewOpen(false);
+                    }}
+                  />
                 </div>
               )}
-            </div>
-            <div className={styles.modalActions}>
-              <button
-                className={styles.reportBtnSecondary}
-                onClick={async () => {
-                  if (!selectedStudent) return;
-                  try {
-                    setActionLoading(true);
-                    await adminService.rejectStudent(selectedStudent.id, 'Отклонено администратором');
-                    // update local state
-                    const id = selectedStudent.id;
-                    setSelectedStudent((s) => s ? ({ ...s, verification_status: 'REJECTED' }) : s);
-                    // update lists
-                    setPendingStudents((list) => list ? list.filter(x => x.id !== id) : list);
-                    // also update main students array via DOM state by calling replace in place - we can't change prop, but we can notify user to refresh
-                    setReviewOpen(false);
-                  } catch (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('Reject failed', err);
-                  } finally {
-                    setActionLoading(false);
-                  }
-                }}
-                disabled={actionLoading}
-              >
-                Отклонить
-              </button>
-              <button
-                className={styles.reportBtn}
-                onClick={async () => {
-                  if (!selectedStudent) return;
-                  try {
-                    setActionLoading(true);
-                    await adminService.approveStudent(selectedStudent.id);
-                    const id = selectedStudent.id;
-                    setSelectedStudent((s) => s ? ({ ...s, verification_status: 'APPROVED' }) : s);
-                    setPendingStudents((list) => list ? list.filter(x => x.id !== id) : list);
-                    setReviewOpen(false);
-                  } catch (err) {
-                    // eslint-disable-next-line no-console
-                    console.error('Approve failed', err);
-                  } finally {
-                    setActionLoading(false);
-                  }
-                }}
-                disabled={actionLoading}
-              >
-                Одобрить
-              </button>
             </div>
           </div>
         </div>

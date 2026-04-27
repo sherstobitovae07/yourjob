@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { getFileUrl } from '../../../utils/fileHelper';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { employerProfileService, type EmployerProfile } from "../../../services/employerProfileService";
@@ -14,6 +15,9 @@ export default function MyEmployerProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedPhotoName, setSelectedPhotoName] = useState("");
+  const [savedPhotoName, setSavedPhotoName] = useState("");
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -76,6 +80,33 @@ export default function MyEmployerProfilePage() {
     }
   };
 
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsSaving(true);
+      setError(null);
+      setSelectedPhotoName(file.name);
+
+      await employerProfileService.uploadPhoto(file);
+      const fresh = await employerProfileService.getProfile();
+      setProfile(fresh);
+      setSavedPhotoName(file.name);
+      setSelectedPhotoName("");
+
+      if (photoInputRef.current) {
+        photoInputRef.current.value = "";
+      }
+    } catch (err) {
+      console.error("Error uploading photo:", err);
+      setError('Не удалось загрузить фото');
+      setSelectedPhotoName("");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleCancel = () => {
     if (profile) {
       setFormData({
@@ -89,7 +120,7 @@ export default function MyEmployerProfilePage() {
     setIsEditing(false);
   };
 
-  const fullName = profile ? `${profile.first_name} ${profile.last_name}`.trim() : "Профиль работодателя";
+  const fullName = profile ? `${profile.first_name} ${profile.last_name}`.trim() : "";
 
   return (
     <main className={styles.main} suppressHydrationWarning>
@@ -97,8 +128,7 @@ export default function MyEmployerProfilePage() {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <h1 className={styles.title}>{fullName}</h1>
-            <p className={styles.subtitle}>Ваш профиль работодателя</p>
+            <h1 className={styles.title}>Ваш профиль работодателя</h1>
           </div>
           <div className={styles.topActions}>
             <Link href="/dashboard/employer" className={styles.linkButton}>
@@ -119,22 +149,43 @@ export default function MyEmployerProfilePage() {
           </div>
         ) : profile ? (
           <>
-            {/* Contact Info Card */}
-            <div className={styles.card}>
-              <h2 className={styles.cardTitle}>Контактная информация</h2>
-
-              <div className={styles.gridTwo}>
-                <div>
-                  <label className={styles.mutedText}>Email</label>
-                  <div className={styles.readonlyField}>{profile.email}</div>
+            <div className={styles.gridContainer}>
+              <aside className={`${styles.card} ${styles.sidebarCard}`}>
+                <div className={styles.photoContainerWrapper}>
+                  <input
+                    ref={photoInputRef}
+                    id="employer-photo-upload"
+                    type="file"
+                    accept="image/*"
+                    className={styles.visuallyHidden}
+                    onChange={handlePhotoSelect}
+                  />
+                  <div className={styles.photoContainer}>
+                    {profile.photo_path ? (
+                      <img src={getFileUrl(profile.photo_path)} alt="employer" className={styles.photoImage} />
+                    ) : (
+                      <div className={styles.photoPlaceholder}>Нет фото</div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.uploadPhotoButton}
+                    onClick={() => photoInputRef.current?.click()}
+                    title="Загрузить фото"
+                    aria-label="Загрузить фото компании"
+                  >
+                    <img src="/Edit-Image-Photo--Streamline-Core.svg" alt="upload" className={styles.uploadPhotoIcon} />
+                  </button>
                 </div>
-              </div>
-            </div>
+                <div style={{ textAlign: 'center' }}>
+                  <h3 className={styles.studentName}>{fullName}</h3>
+                  <div className={styles.studentEmail}>{profile.email}</div>
+                </div>
+              </aside>
 
-            {/* Edit Form Card */}
-            <div className={styles.card}>
+              <div className={`${styles.card} ${styles.profileCard}`}>
               <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 className={styles.cardTitle}>{isEditing ? 'Редактирование профиля' : 'Профиль'}</h2>
+                  <h2 className={styles.cardTitle}>{isEditing ? 'Редактирование профиля' : 'Ваши данные'}</h2>
                 {!isEditing && (
                   <button onClick={() => setIsEditing(true)} className={styles.btnEdit}>
                     Редактировать
@@ -183,17 +234,15 @@ export default function MyEmployerProfilePage() {
                 </div>
 
                 {/* Website */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "20px" }}>
-                  <div>
-                    <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
-                      Веб-сайт
-                    </label>
-                    {isEditing ? (
-                      <input type="text" name="website" value={formData.website} onChange={handleInputChange} className={styles.input} />
-                    ) : (
-                      <div className={styles.readonlyField} style={{ color: formData.website ? '#1f2937' : '#64748b' }}>{formData.website || 'Не указан'}</div>
-                    )}
-                  </div>
+                <div>
+                  <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
+                    Веб-сайт
+                  </label>
+                  {isEditing ? (
+                    <input type="text" name="website" value={formData.website} onChange={handleInputChange} className={styles.input} />
+                  ) : (
+                    <div className={styles.readonlyField} style={{ color: formData.website ? '#1f2937' : '#64748b' }}>{formData.website || 'Не указан'}</div>
+                  )}
                 </div>
 
                 {/* Description */}
@@ -204,7 +253,7 @@ export default function MyEmployerProfilePage() {
                   {isEditing ? (
                     <textarea name="description" value={formData.description} onChange={handleInputChange} className={styles.textarea} />
                   ) : (
-                    <div className={styles.readonlyField} style={{ minHeight: 120, alignItems: 'flex-start', paddingTop: 14, lineHeight: '1.5', color: formData.description ? '#1f2937' : '#64748b' }}>{formData.description || 'Не указано'}</div>
+                    <div className={styles.companyDescription} style={{ color: formData.description ? '#1f2937' : '#64748b' }}>{formData.description || 'Не указано'}</div>
                   )}
                 </div>
 
@@ -223,13 +272,16 @@ export default function MyEmployerProfilePage() {
                   </div>
                 )}
               </div>
+              </div>
             </div>
 
             {/* Info Section */}
-            <div className={styles.infoBox}>
-              <p style={{ margin: 0, color: '#0f172a', fontSize: '16px', lineHeight: 1.75 }}>
-                <strong>Совет:</strong> Регулярно обновляйте информацию о вашей компании, чтобы студенты видели актуальные данные о вашей организации и предложения о стажировках.
-              </p>
+            <div className={styles.infoBoxContainer}>
+              <div className={styles.infoBox}>
+                <p style={{ margin: 0, color: '#0f172a', fontSize: '16px', lineHeight: 1.75 }}>
+                  <strong>Совет:</strong> Регулярно обновляйте информацию о вашей компании, чтобы студенты видели актуальные данные о вашей организации и предложения о стажировках.
+                </p>
+              </div>
             </div>
           </>
         ) : null}

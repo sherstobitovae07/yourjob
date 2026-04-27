@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login, getAuthErrorMessage, registerEmployer, registerStudent } from "../../../services/authService";
 import type { EmployerRegisterRequest, StudentRegisterRequest, UserRole } from "../../../types/auth";
+import { useEffect } from "react";
 import "@/styles/components/pages/auth/authRegisterPage.css";
 const PASSWORD_MAX_LENGTH = 60; // bcrypt ограничивает 72 байт; лучше ограничить короче
 function normalizeOptional(value: FormDataEntryValue): string | undefined {
@@ -15,6 +16,16 @@ export default function RegisterPage() {
   const [role, setRole] = useState<UserRole>("STUDENT");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedResumeName, setSelectedResumeName] = useState<string | null>(null);
+
+  useEffect(() => {
+    // clear any pending resume if role changes to employer
+    if (role !== "STUDENT") {
+      sessionStorage.removeItem('pending_resume_data');
+      sessionStorage.removeItem('pending_resume_name');
+      setSelectedResumeName(null);
+    }
+  }, [role]);
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
@@ -50,23 +61,30 @@ export default function RegisterPage() {
         };
         await registerEmployer(payload);
       }
-      const user = await login({ email, password });
-      const dashboardRole = user?.role ?? localStorage.getItem("user_role");
-      const dashboardPath =
-        dashboardRole === "STUDENT"
-          ? "/dashboard/student"
-          : dashboardRole === "EMPLOYER"
-          ? "/dashboard/employer"
-          : dashboardRole === "ADMIN"
-          ? "/dashboard/admin"
-          : "/auth";
-      router.push(dashboardPath);
-      router.refresh();
+      // После регистрации отправляем пользователя на страницу верификации email
+      localStorage.setItem('pending_verification_email', email);
+      router.push('/auth/verify');
     } catch (err) {
       setError(getAuthErrorMessage(err));
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedResumeName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        sessionStorage.setItem('pending_resume_data', String(reader.result ?? ''));
+        sessionStorage.setItem('pending_resume_name', file.name);
+      } catch (err) {
+        console.error('Failed to save pending resume', err);
+      }
+    };
+    reader.readAsDataURL(file);
   };
   return (
     <main className="auth-page">
@@ -205,17 +223,22 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="full-width">
-                <label className="auth-label" htmlFor="resume_path">
-                  Резюме 
+                <label className="auth-label" htmlFor="resume_upload">
+                  Резюме
                 </label>
                 <input
-                  id="resume_path"
-                  name="resume_path"
-                  type="text"
-                  className="auth-input"
-                  placeholder="Необязательно"
+                  id="resume_upload"
+                  name="resume_upload"
+                  type="file"
+                  accept="application/pdf"
+                  className="visuallyHidden"
                   disabled={loading}
+                  onChange={handleResumeChange}
                 />
+                <label htmlFor="resume_upload" className="fileField" tabIndex={0} role="button">
+                  <span>{selectedResumeName || 'Загрузите файл в формате PDF(необязательно)'}</span>
+                </label>
+                <input id="resume_path" name="resume_path" type="hidden" value="" />
               </div>
             </>
           ) : (

@@ -1,5 +1,5 @@
 import React from "react";
-import type { ApplicationItem } from "../../types/dashboard";
+import type { ApplicationItem } from '@/types/dashboard';
 
 interface ApplicationCardProps {
   application: ApplicationItem;
