@@ -115,5 +115,14 @@ class InternshipRepository:
         return internship
 
     def delete_internship(self, internship: Internship) -> None:
-        self.db.delete(internship)
-        self.db.commit()
+        try:
+            print(f"InternshipRepository.delete_internship called for id={internship.id}")
+            self.db.delete(internship)
+            # flush to ensure SQL is emitted before commit
+            self.db.flush()
+            self.db.commit()
+            print(f"InternshipRepository: committed deletion for id={internship.id}")
+        except Exception as e:
+            print(f"InternshipRepository.delete_internship error: {e}")
+            self.db.rollback()
+            raise

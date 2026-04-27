@@ -233,8 +233,123 @@
   justify-content: flex-start;
   gap: 12px;
   margin: 24px 0 16px 0;
-  padding-left: 12px;
+  padding-left: 0;
 }
+
+/* search input used across internship pages */
+.searchInputCustom {
+  width: 100%;
+  height: 42px;
+  padding: 8px 44px 8px 14px;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 10px;
+  border: 1px solid rgba(6,182,212,0.08);
+  box-sizing: border-box;
+}
+.searchInputCustom::placeholder {
+  color: #6b7280; /* slightly brighter gray */
+}
+
+/* modal filter styles */
+.filtersModal {
+  width: 720px;
+  max-width: 94%;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  color: #0f172a;
+}
+.filtersModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.filtersModalHeader h3 { color: #0f172a; font-weight: 700; }
+.filtersModalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.filtersModalInput {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e6edf3;
+  background: #f8fafc; /* slightly gray to stand out from white */
+  color: #0f172a; /* darker text for readability */
+  font-size: 14px;
+}
+.filtersModalInput::placeholder { color: #6b7280; }
+
+/* hide native number spinners to avoid dark controls; keep inputs clean */
+.filtersModalInput[type="number"]::-webkit-outer-spin-button,
+.filtersModalInput[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.filtersModalInput[type="number"] {
+  -moz-appearance: textfield;
+}
+.filtersModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.modalBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  min-width: 140px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid rgba(6, 182, 212, 0.12);
+  background: rgba(6, 182, 212, 0.06);
+  color: #0f172a;
+}
+.modalBtnPrimary {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  color: #ffffff;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+
+/* Success modal (light theme) used for "Отклик отправлен" */
+:global(.modal-success-overlay) {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 2200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+:global(.modal-success-content) {
+  width: 640px;
+  max-width: 94%;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.08);
+}
+:global(.modal-success-content) h2 { margin: 0 0 8px 0; color: #0f172a; }
+:global(.modal-success-content) .success-message { color: #0f172a !important; margin: 0 0 14px 0; }
+:global(.modal-success-content) p { color: #0f172a !important; margin: 0 0 14px 0; }
+:global(.modal-close) {
+  background: transparent;
+  border: none;
+  color: #0f172a;
+  font-size: 20px;
+  cursor: pointer;
+}
+:global(.modal-actions) { display: flex; justify-content: flex-end; }
+:global(.modal-actions) .roleBtn { min-width: 140px; margin-left: 8px; }
 
 .roleBtn,
 .btn-create-internship {

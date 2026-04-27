@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { studentProfileService, type StudentProfile } from "../../../services/studentProfileService";
-import ResubmitForVerificationButton from '../../../components/Profile/ResubmitForVerificationButton';
+import ResubmitForVerificationButton from '../../../components/profile/ResubmitForVerificationButton';
 import { getFileUrl } from "../../../utils/fileHelper";
-import DeleteAccountButton from '../../../components/Profile/DeleteAccountButton';
+import DeleteAccountButton from '../../../components/profile/DeleteAccountButton';
 import styles from '@/styles/components/profile.module.css';
 
 export default function MyStudentProfilePage() {

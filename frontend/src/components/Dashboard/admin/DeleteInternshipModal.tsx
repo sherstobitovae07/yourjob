@@ -12,17 +12,15 @@ interface Props {
 }
 
 export const DeleteInternshipModal: React.FC<Props> = ({ open, onClose, internshipId, onDeleted }) => {
-  const { deleteInternship, loading, error } = useDeleteInternship();
+  const { deleteInternship, loading, error } = useDeleteInternship('admin');
 
   if (!open || internshipId == null) return null;
 
   const handleDelete = async () => {
-    try {
-      await deleteInternship(internshipId);
+    const ok = await deleteInternship(internshipId);
+    if (ok) {
       onDeleted && onDeleted();
       onClose();
-    } catch (err) {
-      // handled in hook
     }
   };
 

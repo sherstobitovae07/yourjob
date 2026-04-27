@@ -7,48 +7,22 @@ import { dashboardService } from '@/services/dashboardService';
 import { getHttpErrorMessage } from '@/utils/errorUtils';
 import type { InternshipPublicResponse } from '@/types/dashboard';
 import styles from "@/app/page.module.css";
-import DeleteInternshipModal from "@/components/Profile/DeleteInternshipModal";
-function getInternshipImage(title: string | null) {
-  if (
-    title?.includes("организации мероприятий") ||
-    title?.includes("Event") ||
-    title?.includes("мероприятий")
-  ) {
-    return "/218c9170682e8d1ec7c3a10d28e21663.webp";
-  }
-  if (
-    title?.includes("Логистик") ||
-    title?.includes("Supply Chain") ||
-    title?.includes("поставок")
-  ) {
-    return "/logistika-ecommerce-tehnologii-ii-optimizaciya-protsessov.jpg";
-  }
-  if (
-    title?.includes("HR") ||
-    title?.includes("рекрутинг") ||
-    title?.includes("HR-менеджер")
-  ) {
-    return "/1794_min.jpg";
-  }
-  if (
-    title?.includes("Финансов") ||
-    title?.includes("Financial") ||
-    title?.includes("аналитик")
-  ) {
-    return "/aaxfo4qgf6plgcbknpu13xkuon6dd8qd.jpg";
-  }
-  if (
-    title?.includes("Digital") ||
-    title?.includes("маркет") ||
-    title?.includes("Marketing")
-  ) {
-    return "/iStock-1332570157.jpg";
-  }
-  if (title?.includes("Backend") || title?.includes("Backend-разработчик")) {
-    return "/backend-developer.jpeg";
-  }
-  return null;
-}
+import DeleteInternshipModal from "@/components/profile/DeleteInternshipModal";
+
+// Treat known placeholder filenames as non-existent images so legacy records
+// that store placeholder URLs won't render them in the UI.
+const isPlaceholderUrl = (url?: string | null) => {
+  if (!url) return false;
+  const placeholders = [
+    "218c9170682e8d1ec7c3a10d28e21663.webp",
+    "logistika-ecommerce-tehnologii-ii-optimizaciya-protsessov.jpg",
+    "1794_min.jpg",
+    "aaxfo4qgf6plgcbknpu13xkuon6dd8qd.jpg",
+    "iStock-1332570157.jpg",
+    "backend-developer.jpeg",
+  ];
+  return placeholders.some((p) => url.includes(p));
+};
 export default function InternshipDetailsPage() {
   const params = useParams();
   const router = useRouter();
@@ -63,6 +37,7 @@ export default function InternshipDetailsPage() {
   const [userRole, setUserRole] = useState<"STUDENT" | "EMPLOYER" | null>(null);
   const [hasApplied, setHasApplied] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [applicationsCount, setApplicationsCount] = useState<number | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   useEffect(() => {
     const checkAuth = async () => {
@@ -85,6 +60,12 @@ export default function InternshipDetailsPage() {
         setError(null);
         const internshipData = await dashboardService.getPublicInternshipById(internshipId);
         setInternship(internshipData);
+        setApplicationsCount(internshipData.applications_count ?? null);
+        // Debug: log API responses to help trace missing applications_count for students
+        try {
+          // eslint-disable-next-line no-console
+          console.debug('[DEBUG] internshipData', internshipData);
+        } catch (e) {}
         // if user is employer, try to fetch my internship by id — success means current user is owner
         if (userRole === "EMPLOYER") {
           try {
@@ -97,6 +78,33 @@ export default function InternshipDetailsPage() {
         if (userRole === "STUDENT") {
           const applications = await dashboardService.getMyApplications();
           setHasApplied(applications.some((app) => app.internship_id === internshipId));
+        }
+        // Try to fetch applications list for this internship (may be allowed for students).
+        // If that succeeds, use its length as the authoritative count. Otherwise fall back
+        // to public list or the value returned in the internship detail.
+        try {
+          const apps = await dashboardService.getApplicationsByInternship(internshipId);
+          // eslint-disable-next-line no-console
+          console.debug('[DEBUG] applicationsByInternship', apps);
+          setApplicationsCount((apps || []).length ?? 0);
+        } catch (err) {
+          // If fetching by-internship failed (e.g., 403), try public list next
+          try {
+            const publicList = await dashboardService.getActiveInternships();
+            const found = (publicList || []).find((i) => i.id === internshipId);
+            if (found && typeof found.applications_count === 'number') {
+              setApplicationsCount(found.applications_count);
+            } else if (internshipData.applications_count != null) {
+              setApplicationsCount(internshipData.applications_count);
+            } else {
+              setApplicationsCount(0);
+            }
+          } catch (err2) {
+            // eslint-disable-next-line no-console
+            console.error('[DEBUG] error fetching public list for applications_count', err2);
+            if (internshipData.applications_count != null) setApplicationsCount(internshipData.applications_count);
+            else setApplicationsCount(0);
+          }
         }
       } catch (err) {
         setError(getHttpErrorMessage(err, "Не удалось загрузить данные стажировки"));
@@ -209,7 +217,7 @@ export default function InternshipDetailsPage() {
   if (!internship) {
     notFound();
   }
-  const imageUrl = getInternshipImage(internship.title);
+  const imageUrl = internship.image_url && !isPlaceholderUrl(internship.image_url) ? internship.image_url : null;
   return (
     <main className={styles.main} style={{ paddingTop: "60px" }}>
       <div className={`internship-container ${isOwner ? 'owner-view' : ''}`}>
@@ -249,7 +257,7 @@ export default function InternshipDetailsPage() {
             Не упустите шанс быть среди первых — откликнитесь прямо сейчас, и начните свой путь в профессии!
           </div>
           <div className="internship-cta-green">
-            На данный момент {internship.applications_count} человек откликнулись на стажировку
+            На данный момент {applicationsCount ?? internship.applications_count ?? 0} человек откликнулись на стажировку
           </div>
           {internship.created_at && (
             <div className="internship-info">Дата публикации: {formatDate(internship.created_at)}</div>

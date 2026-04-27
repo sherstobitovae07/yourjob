@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
-import CreateInternshipPage from "@/components/Dashboard/internship/CreateInternshipPage";
+import CreateInternshipPage from "@/components/internship/CreateInternshipPage";
 import { dashboardService } from "@/services/dashboardService";
 import { getHttpErrorMessage } from "@/utils/errorUtils";
 import type { InternshipResponse } from "@/types/dashboard";

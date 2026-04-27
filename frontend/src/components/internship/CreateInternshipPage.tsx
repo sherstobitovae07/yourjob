@@ -81,6 +81,23 @@ export default function CreateInternshipPage({
           deadline: deadline || undefined,
         };
         await dashboardService.updateMyInternship(internshipId, payload);
+        if (images.length > 0) {
+          try {
+            for (const file of images) {
+              await dashboardService.uploadMyInternshipPhoto(internshipId, file);
+            }
+          } catch (uploadErr) {
+            console.error('Photo upload error (edit):', uploadErr);
+            if (axios.isAxiosError(uploadErr) && uploadErr.response) {
+              const data = uploadErr.response.data;
+              const msg = typeof data === 'string' ? data : JSON.stringify(data);
+              setError(`Ошибка загрузки фото: ${msg}`);
+            } else {
+              setError(uploadErr instanceof Error ? uploadErr.message : 'Ошибка загрузки фото');
+            }
+            // continue — we already updated main data, but inform user about photo failure
+          }
+        }
         router.push("/dashboard/employer");
         router.refresh();
       } else {
@@ -92,13 +109,32 @@ export default function CreateInternshipPage({
           salary: salary === undefined || Number.isNaN(salary) ? undefined : salary,
           deadline: deadline || undefined,
         };
-        await dashboardService.createInternship(payload);
+        const created = await dashboardService.createInternship(payload);
+        if (images.length > 0 && created && (created as any).id) {
+          const createdId = (created as any).id as number;
+          try {
+            for (const file of images) {
+              await dashboardService.uploadMyInternshipPhoto(createdId, file);
+            }
+          } catch (uploadErr) {
+            console.error('Photo upload error (create):', uploadErr);
+            if (axios.isAxiosError(uploadErr) && uploadErr.response) {
+              const data = uploadErr.response.data;
+              const msg = typeof data === 'string' ? data : JSON.stringify(data);
+              setError(`Ошибка загрузки фото: ${msg}`);
+            } else {
+              setError(uploadErr instanceof Error ? uploadErr.message : 'Ошибка загрузки фото');
+            }
+          }
+        }
         router.push("/dashboard/employer");
         router.refresh();
       }
     } catch (err) {
+      console.error("Internship save error:", err);
       if (axios.isAxiosError(err) && err.response) {
-        const serverMessage = err.response.data?.detail || err.response.data || err.message;
+        const data = err.response.data;
+        const serverMessage = typeof data === 'string' ? data : JSON.stringify(data);
         setError(`Ошибка ${mode === "edit" ? "обновления" : "создания"} стажировки: ${serverMessage}`);
       } else {
         setError(err instanceof Error ? err.message : `Ошибка ${mode === "edit" ? "обновления" : "создания"} стажировки`);
@@ -151,30 +187,28 @@ export default function CreateInternshipPage({
                 <label className="auth-label" htmlFor="deadline">Крайний срок подачи</label>
                 <input id="deadline" name="deadline" type="date" className="auth-input" disabled={loading} />
               </div>
-              {mode === "create" && (
-                <div className="full-width">
-                  <label className="auth-label" htmlFor="images">Фотографии стажировки</label>
-                  <div className="auth-file-wrapper">
-                    <div className="auth-file-overlay" />
-                    <input
-                      id="images"
-                      name="images"
-                      ref={inputFileRef}
-                      type="file"
-                      className="auth-file-input"
-                      accept="image/*"
-                      multiple
-                      disabled={loading}
-                      onChange={(event) => {
-                        const selected = Array.from((event.target as HTMLInputElement).files ?? []);
-                        setFileLabel(selected.length > 0 ? selected.map((file) => file.name).join(", ") : "Файл не выбран");
-                      }}
-                    />
-                    <span className="auth-file-text">{fileLabel}</span>
-                    <span className="auth-file-icon">+</span>
-                  </div>
+              <div className="full-width">
+                <label className="auth-label" htmlFor="images">Фотографии стажировки</label>
+                <div className="auth-file-wrapper">
+                  <div className="auth-file-overlay" />
+                  <input
+                    id="images"
+                    name="images"
+                    ref={inputFileRef}
+                    type="file"
+                    className="auth-file-input"
+                    accept="image/*"
+                    multiple
+                    disabled={loading}
+                    onChange={(event) => {
+                      const selected = Array.from((event.target as HTMLInputElement).files ?? []);
+                      setFileLabel(selected.length > 0 ? selected.map((file) => file.name).join(", ") : "Файл не выбран");
+                    }}
+                  />
+                  <span className="auth-file-text">{fileLabel}</span>
+                  <span className="auth-file-icon">+</span>
                 </div>
-              )}
+              </div>
               <div className="full-width">
                 <button className="auth-button" type="submit" disabled={loading}>
                   {loading ? "Сохранение..." : mode === "edit" ? "Сохранить изменения" : "Сохранить стажировку"}

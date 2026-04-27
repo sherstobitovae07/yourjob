@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { dashboardService } from '@/services/dashboardService';
-import ApplicationsModal from '@/components/Dashboard/application/ApplicationsModal';
+import ApplicationsModal from '@/components/application/ApplicationsModal';
 import type { EmployerProfileData, InternshipResponse, InternshipPublicResponse } from '@/types/dashboard';
 import { getInternshipImage, parseDateFromString, formatRuDate, formatStatus, getFirstSentence } from '@/utils/internshipUtils';
+import InternshipListWithFilters from '@/components/internship/InternshipListWithFilters';
 import styles from "@/app/page.module.css";
 export default function EmployerDashboard() {
   const [profile, setProfile] = useState<EmployerProfileData | null>(null);
@@ -72,55 +73,50 @@ export default function EmployerDashboard() {
         </button>
       </div>
       <section className={styles.internshipsSection}>
-        {internships.length === 0 ? (
-          <p className={styles.emptyState}>
-            {isActiveTab
-              ? "Нет активных стажировок на сайте."
-              : "Вы ещё не создали ни одной стажировки."}
-          </p>
+        {isActiveTab ? (
+          <InternshipListWithFilters />
         ) : (
-          <div className={styles.internshipGrid}>
-            {internships.map((internship) => {
-              const companyName = isActiveTab
-                ? (internship as InternshipPublicResponse).company_name
-                : profile?.company_name;
-              const imageUrl = getInternshipImage(internship.title);
-              const deadlineDate = parseDateFromString(internship.deadline || null);
-              const isExpired = deadlineDate ? deadlineDate < new Date() : false;
-              const displayStatus = isExpired ? "CLOSED" : internship.status;
-              return (
-                <article key={internship.id} className={styles.internshipCard}>
-                  <div className={styles.internshipImage}>
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={internship.title || "Стажировка"} loading="lazy" />
-                    ) : (
-                      <span className={styles.internshipImageFallback}>изображение отсутствует</span>
-                    )}
-                  </div>
-                  <div className={styles.internshipContent}>
-                    <div className={styles.internshipTopRow}>
-                      <h3 className={styles.internshipTitle}>{internship.title || "Без названия"}</h3>
-                      <span className={styles.badge}>{formatStatus(displayStatus)}</span>
+          (myInternships.length === 0 ? (
+            <p className={styles.emptyState}>Вы ещё не создали ни одной стажировки.</p>
+          ) : (
+            <div className={styles.internshipGrid}>
+              {myInternships.map((internship) => {
+                const imageUrl = (internship as any).image_url ?? getInternshipImage(internship.title);
+                const deadlineDate = parseDateFromString(internship.deadline || null);
+                const isExpired = deadlineDate ? deadlineDate < new Date() : false;
+                const displayStatus = isExpired ? "CLOSED" : internship.status;
+                return (
+                  <article key={internship.id} className={styles.internshipCard}>
+                    <div className={styles.internshipImage}>
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={internship.title || "Стажировка"} loading="lazy" />
+                      ) : (
+                        <span className={styles.internshipImageFallback}>изображение отсутствует</span>
+                      )}
                     </div>
-                    <p className={styles.internshipDescription}>{getFirstSentence(internship.description) || "Описание отсутствует"}</p>
-                    {internship.direction && <p className={styles.internshipCategory}>{internship.direction}</p>}
-                    {internship.salary != null && <p className={styles.internshipSalary}>{internship.salary} ₽/мес</p>}
-                    {(internship.city || companyName) && (
-                      <p className={styles.internshipCityUniversity}>
-                        {internship.city}
-                        {internship.city && companyName ? ", " : ""}
-                        {companyName}
+                    <div className={styles.internshipContent}>
+                      <div className={styles.internshipTopRow}>
+                        <h3 className={styles.internshipTitle}>{internship.title || "Без названия"}</h3>
+                        <span className={styles.badge}>{formatStatus(displayStatus)}</span>
+                      </div>
+                      <p className={styles.internshipDescription}>{getFirstSentence(internship.description) || "Описание отсутствует"}</p>
+                      {internship.direction && <p className={styles.internshipCategory}>{internship.direction}</p>}
+                      {internship.salary != null && <p className={styles.internshipSalary}>{internship.salary} ₽/мес</p>}
+                      {(internship.city || profile?.company_name) && (
+                        <p className={styles.internshipCityUniversity}>
+                          {internship.city}
+                          {internship.city && profile?.company_name ? ", " : ""}
+                          {profile?.company_name}
+                        </p>
+                      )}
+                      {internship.deadline && (
+                        <p className={styles.internshipDeadline}>
+                          Крайний срок: {formatRuDate(parseDateFromString(internship.deadline)) || internship.deadline}
+                        </p>
+                      )}
+                      <p className={styles.internshipPublished}>
+                        {internship.created_at ? `Опубликовано ${internship.created_at.split("T")[0]}` : "Дата публикации не указана"}
                       </p>
-                    )}
-                    {internship.deadline && (
-                      <p className={styles.internshipDeadline}>
-                        Крайний срок: {formatRuDate(parseDateFromString(internship.deadline)) || internship.deadline}
-                      </p>
-                    )}
-                    <p className={styles.internshipPublished}>
-                      {internship.created_at ? `Опубликовано ${internship.created_at.split("T")[0]}` : "Дата публикации не указана"}
-                    </p>
-                    {!isActiveTab && (
                       <div className={styles.internshipCardFooter}>
                         <button
                           type="button"
@@ -130,20 +126,20 @@ export default function EmployerDashboard() {
                           Просмотреть заявки
                         </button>
                       </div>
-                    )}
-                    <div className={styles.internshipCardActions}>
-                      <Link
-                        href={`/dashboard/internship/${internship.id}`}
-                        className={`${styles.roleBtn} ${styles.roleBtnActive} ${styles.employerActionBtn}`}
-                      >
-                        Подробнее
-                      </Link>
+                      <div className={styles.internshipCardActions}>
+                        <Link
+                          href={`/dashboard/internship/${internship.id}`}
+                          className={`${styles.roleBtn} ${styles.roleBtnActive} ${styles.employerActionBtn}`}
+                        >
+                          Подробнее
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  </article>
+                );
+              })}
+            </div>
+          ))
         )}
       </section>
       {selectedInternshipForApps && (

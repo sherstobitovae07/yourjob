@@ -1,4 +1,4 @@
-import EmployerPageClient from "../../../components/Dashboard/employer/EmployerPageClient";
+import EmployerPageClient from "../../../components/dashboard/employer/EmployerPageClient";
 export default function EmployerPage() {
   return <EmployerPageClient />;
 }

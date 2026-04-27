@@ -1,23 +1,9 @@
 import Link from "next/link";
 import styles from "./page.module.css";
 import type { InternshipPublicResponse } from "@/types/internship";
+import InternshipListWithFilters from "@/components/internship/InternshipListWithFilters";
 
 export const dynamic = "force-dynamic";
-
-async function getActiveInternships(): Promise<InternshipPublicResponse[]> {
-  try {
-    const response = await fetch("http://127.0.0.1:8001/api/v1/internships", {
-      cache: "no-store",
-    });
-
-    if (!response.ok) return [];
-
-    return (await response.json()) as InternshipPublicResponse[];
-  } catch (error) {
-    console.error("Error fetching internships:", error);
-    return [];
-  }
-}
 
 function getInternshipImage(title: string | null) {
   if (
@@ -91,7 +77,7 @@ function getFirstSentence(text: string | null | undefined): string {
 }
 
 export default async function Home() {
-  const internships = await getActiveInternships();
+  // Active internships are rendered client-side by `InternshipListWithFilters`
 
   return (
     <div className={styles.page}>
@@ -122,91 +108,7 @@ export default async function Home() {
 
         <section className={styles.internshipsSection}>
           <h2 className={styles.sectionTitle}>Активные стажировки</h2>
-
-          {internships.length === 0 ? (
-            <p className={styles.emptyState}>
-              Пока нет активных стажировок или бэкенд недоступен.
-            </p>
-          ) : (
-            <div className={styles.internshipGrid}>
-              {internships.map((item) => {
-                const imageUrl = getInternshipImage(item.title);
-                const deadlineDate = parseDateFromString(item.deadline || null);
-                const isExpired = deadlineDate ? deadlineDate < new Date() : false;
-                const displayStatus = isExpired ? "CLOSED" : item.status;
-                const statusLabel =
-                  displayStatus === "ACTIVE" ? "АКТИВНА" :
-                  displayStatus === "CLOSED" ? "ЗАКРЫТА" :
-                  displayStatus === "ARCHIVED" ? "В АРХИВЕ" :
-                  "НЕ УКАЗАНО";
-
-                return (
-                  <article key={item.id} className={styles.internshipCard}>
-                    <div className={styles.internshipImage}>
-                      {imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt={item.title ?? "Стажировка"}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <span className={styles.internshipImageFallback}>
-                          изображение отсутствует
-                        </span>
-                      )}
-                    </div>
-
-                    <div className={styles.internshipContent}>
-                      <div className={styles.internshipTopRow}>
-                        <h3 className={styles.internshipTitle}>
-                          {item.title ?? ""}
-                        </h3>
-                        <span className={styles.badge}>{statusLabel}</span>
-                      </div>
-                      {item.description && (
-                        <p className={styles.internshipDescription}>
-                          {getFirstSentence(item.description)}
-                        </p>
-                      )}
-                      {item.direction && (
-                        <p className={styles.internshipCategory}>
-                          {item.direction}
-                        </p>
-                      )}
-                      {item.salary != null && (
-                        <p className={styles.internshipSalary}>
-                          {item.salary} ₽/мес
-                        </p>
-                      )}
-                      {item.deadline && (
-                        <p className={styles.internshipDeadline}>
-                          Крайний срок: {formatRuDate(deadlineDate) || item.deadline}
-                        </p>
-                      )}
-                      {(item.city || item.company_name) && (
-                        <p className={styles.internshipCityUniversity}>
-                          {item.city}
-                          {item.city && item.company_name ? ", " : ""}
-                          {item.company_name}
-                        </p>
-                      )}
-                      {item.created_at && (
-                        <p className={styles.internshipPublished}>
-                          Опубликовано {item.created_at.split("T")[0]}
-                        </p>
-                      )}
-
-                      <div className={styles.internshipCardActions}>
-                        <Link href="/auth" className={`${styles.roleBtn} ${styles.roleBtnActive}`}>
-                          Подробнее
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
+          <InternshipListWithFilters />
         </section>
       </main>
     </div>

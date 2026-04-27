@@ -5,7 +5,7 @@ import { getFileUrl } from '../../../utils/fileHelper';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { employerProfileService, type EmployerProfile } from "../../../services/employerProfileService";
-import DeleteAccountButton from '../../../components/Profile/DeleteAccountButton';
+import DeleteAccountButton from '../../../components/profile/DeleteAccountButton';
 import styles from '@/styles/components/profile.module.css';
 
 export default function MyEmployerProfilePage() {
@@ -128,7 +128,7 @@ export default function MyEmployerProfilePage() {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <h1 className={styles.title}>Ваш профиль работодателя</h1>
+            <p className={styles.subtitle}>Ваш профиль работодателя</p>
           </div>
           <div className={styles.topActions}>
             <Link href="/dashboard/employer" className={styles.linkButton}>
@@ -183,8 +183,9 @@ export default function MyEmployerProfilePage() {
                 </div>
               </aside>
 
-              <div className={`${styles.card} ${styles.profileCard}`}>
-              <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className={styles.profileRightColumn}>
+                <div className={`${styles.card} ${styles.profileCard}`}>
+                <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <h2 className={styles.cardTitle}>{isEditing ? 'Редактирование профиля' : 'Ваши данные'}</h2>
                 {!isEditing && (
                   <button onClick={() => setIsEditing(true)} className={styles.btnEdit}>
@@ -241,7 +242,18 @@ export default function MyEmployerProfilePage() {
                   {isEditing ? (
                     <input type="text" name="website" value={formData.website} onChange={handleInputChange} className={styles.input} />
                   ) : (
-                    <div className={styles.readonlyField} style={{ color: formData.website ? '#1f2937' : '#64748b' }}>{formData.website || 'Не указан'}</div>
+                    formData.website ? (
+                      <a
+                        href={formData.website.startsWith('http') ? formData.website : `https://${formData.website}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.readonlyLink}
+                      >
+                        {formData.website}
+                      </a>
+                    ) : (
+                      <div className={`${styles.readonlyField} ${styles.placeholderText}`}>Не указан</div>
+                    )
                   )}
                 </div>
 
@@ -253,7 +265,7 @@ export default function MyEmployerProfilePage() {
                   {isEditing ? (
                     <textarea name="description" value={formData.description} onChange={handleInputChange} className={styles.textarea} />
                   ) : (
-                    <div className={styles.companyDescription} style={{ color: formData.description ? '#1f2937' : '#64748b' }}>{formData.description || 'Не указано'}</div>
+                    <div className={`${styles.companyDescription} ${!formData.description ? styles.placeholderText : ''}`}>{formData.description || 'Не указано'}</div>
                   )}
                 </div>
 
@@ -272,6 +284,7 @@ export default function MyEmployerProfilePage() {
                   </div>
                 )}
               </div>
+                </div>
               </div>
             </div>
 

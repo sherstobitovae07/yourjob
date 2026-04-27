@@ -116,6 +116,8 @@
 .card {
   display: flex;
   flex-direction: column;
+  flex: 1; /* allow cards to stretch to fill grid row */
+  min-height: 0; /* allow children to scroll when overflowed */
 }
 
 /* utility to make a card stretch to full height of grid row */
@@ -247,14 +249,51 @@
 /* fixed company description block with scroll when content overflows */
 .companyDescription {
   width: 100%;
-  height: 200px;
-  padding: 14px;
+  /* reduce vertical size and allow scroll when content is long */
+  min-height: 100px;
+  max-height: 160px;
+  padding: 12px 14px;
   border-radius: 12px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   box-sizing: border-box;
   overflow: auto;
   line-height: 1.5;
+  color: #1f2937; /* ensure filled description is dark */
+}
+
+.placeholderText {
+  color: #64748b !important;
+}
+
+/* ensure sidebar name/email are prominent and consistent */
+.sidebarCard .studentName {
+  margin: 8px 0 8px 0;
+  font-size: 20px;
+  color: #0f172a;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sidebarCard .studentEmail {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* clickable readonly link that looks like readonlyField */
+.readonlyLink {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .readonlyField {
@@ -454,4 +493,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Stronger overrides to ensure visual parity between student and employer profiles */
+.sidebarCard .studentName,
+.card.sidebarCard .studentName {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+.sidebarCard .studentEmail,
+.card.sidebarCard .studentEmail {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #0f172a !important;
+}
+
+/* Make company description text weight match other readonly fields */
+.companyDescription {
+  font-weight: 600;
+}
+
+/* Ensure placeholder stays lighter */
+.companyDescription.placeholderText {
+  font-weight: 500;
 }

@@ -1,4 +1,4 @@
-export const getInternshipImage = (title?: string | null): string => {
+export const getInternshipImage = (title?: string | null): string | null => {
   const normalizedTitle = title?.toLowerCase() ?? '';
 
   if (
@@ -45,7 +45,8 @@ export const getInternshipImage = (title?: string | null): string => {
     return '/backend-developer.jpeg';
   }
 
-  return '/image.jpg';
+    // If no image_url provided, use a default placeholder from public/image.jpg
+    return '/image.jpg';
 };
 
 export const parseDateFromString = (dateStr?: string | null): Date | null => {

@@ -6,9 +6,18 @@ import { dashboardService } from '@/services/dashboardService';
 import type { InternshipPublicResponse } from '@/types/internship';
 import type { ApplicationItem } from '@/types/dashboard';
 import { getInternshipImage, parseDateFromString, formatRuDate, formatStatus, getFirstSentence } from '@/utils/internshipUtils';
+import InternshipListWithFilters from '@/components/internship/InternshipListWithFilters';
 import styles from "@/app/page.module.css";
 
-type ApplicationWithDetails = ApplicationItem & { description?: string | null };
+type ApplicationWithDetails = ApplicationItem & {
+  description?: string | null;
+  company_name?: string | null;
+  image_url?: string | null;
+  direction?: string | null;
+  salary?: number | null;
+  deadline?: string | null;
+  created_at?: string | null;
+};
 
 export default function StudentDashboard() {
   const [internships, setInternships] = useState<InternshipPublicResponse[]>([]);
@@ -36,6 +45,11 @@ export default function StudentDashboard() {
                 ...app,
                 description: internship.description,
                 company_name: app.company_name || internship.company_name,
+                image_url: (internship as any).image_url,
+                direction: internship.direction,
+                salary: internship.salary,
+                deadline: internship.deadline,
+                created_at: internship.created_at,
               };
             } catch {
               return app;
@@ -46,7 +60,7 @@ export default function StudentDashboard() {
         setInternships(internshipsData);
         setApplications(applicationsWithDetails);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "�� ������� ��������� ������");
+        setError(err instanceof Error ? err.message : "Не удалось загрузить данные");
       } finally {
         setLoading(false);
       }
@@ -56,11 +70,11 @@ export default function StudentDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="student-dashboard loading">��������...</div>;
+    return <div className="student-dashboard loading">Загрузка...</div>;
   }
 
   if (error) {
-    return <div className="student-dashboard error">������: {error}</div>;
+    return <div className="student-dashboard error">Ошибка: {error}</div>;
   }
 
   return (
@@ -90,54 +104,7 @@ export default function StudentDashboard() {
       <section className={styles.internshipsSection}>
         {activeTab === "internships" ? (
           <>
-            {internships.length === 0 ? (
-              <p className={styles.emptyState}>Нет активных стажировок для вашего региона.</p>
-            ) : (
-              <div className={styles.internshipGrid}>
-                {internships.map((internship) => {
-                  const internshipImageUrl = internship.image_url ?? getInternshipImage(internship.title);
-                  return (
-                    <article key={internship.id} className={styles.internshipCard}>
-                      <div className={styles.internshipImage}>
-                        {internshipImageUrl ? (
-                          <img src={internshipImageUrl} alt={internship.title || "Стажировка"} loading="lazy" />
-                        ) : (
-                          <span className={styles.internshipImageFallback}>изображение отсутствует</span>
-                        )}
-                      </div>
-                      <div className={styles.internshipContent}>
-                      <div className={styles.internshipTopRow}>
-                        <h3 className={styles.internshipTitle}>{internship.title || "Без названия"}</h3>
-                        <span className={styles.badge}>{formatStatus(internship.status)}</span>
-                      </div>
-                      <p className={styles.internshipDescription}>{getFirstSentence(internship.description) || "Описание отсутствует"}</p>
-                      {internship.direction && <p className={styles.internshipCategory}>{internship.direction}</p>}
-                      {internship.salary != null && <p className={styles.internshipSalary}>{internship.salary} ₽/мес</p>}
-                      {internship.company_name && <p className={styles.internshipCityUniversity}>{internship.company_name}</p>}
-                      {internship.deadline && (
-                        <p className={styles.internshipDeadline}>
-                          Крайний срок: {formatRuDate(parseDateFromString(internship.deadline)) || internship.deadline}
-                        </p>
-                      )}
-                      {internship.created_at && (
-                        <p className={styles.internshipPublished}>
-                          Опубликовано {internship.created_at.split("T")[0]}
-                        </p>
-                      )}
-                      <div className={styles.internshipCardActions}>
-                        <Link
-                          href={`/dashboard/internship/${internship.id}`}
-                          className={`${styles.roleBtn} ${styles.roleBtnActive}`}
-                        >
-                          Подробнее
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
-                  );
-                })}
-              </div>
-            )}
+            <InternshipListWithFilters />
           </>
         ) : (
           <>
@@ -162,7 +129,17 @@ export default function StudentDashboard() {
                         <span className={styles.badge}>{formatStatus(app.status)}</span>
                       </div>
                       <p className={styles.internshipDescription}>{getFirstSentence(app.description) || "Описание отсутствует"}</p>
+                      {app.direction && <p className={styles.internshipCategory}>{app.direction}</p>}
+                      {app.salary != null && <p className={styles.internshipSalary}>{app.salary} ₽/мес</p>}
                       {app.company_name && <p className={styles.internshipCityUniversity}>{app.company_name}</p>}
+                      {app.deadline && (
+                        <p className={styles.internshipDeadline}>
+                          Крайний срок: {formatRuDate(parseDateFromString(app.deadline)) || app.deadline}
+                        </p>
+                      )}
+                      <p className={styles.internshipPublished}>
+                        {app.created_at ? `Опубликовано ${app.created_at.split("T")[0]}` : "Дата публикации не указана"}
+                      </p>
                       <div className={styles.internshipCardActions}>
                         <Link
                           href={`/dashboard/internship/${app.internship_id}`}
