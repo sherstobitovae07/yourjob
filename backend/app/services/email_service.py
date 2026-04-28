@@ -7,19 +7,16 @@ from app.core.config import settings
 class EmailService:
     @staticmethod
     def send_email(to_email: str, subject: str, body: str) -> None:
-        try:
-            message = EmailMessage()
-            message["From"] = settings.SMTP_FROM
-            message["To"] = to_email
-            message["Subject"] = subject
-            message.set_content(body)
+        message = EmailMessage()
+        message["From"] = settings.SMTP_FROM
+        message["To"] = to_email
+        message["Subject"] = subject
+        message.set_content(body)
 
-            with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-                server.starttls()
-                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-                server.send_message(message)
-        except Exception as e:
-            print(f"Warning: Failed to send email to {to_email}: {type(e).__name__}: {e}")
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+            server.starttls()
+            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            server.send_message(message)
 
     @staticmethod
     def send_verification_code(to_email: str, code: str) -> None:

@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from sqlalchemy import text
 
 from app.api.v1.auth import router as auth_router
 from app.api.v1.profile import router as profile_router
@@ -11,7 +10,7 @@ from app.api.v1.admin import router as admin_router
 from app.api.v1.reports import router as reports_router
 from fastapi.staticfiles import StaticFiles
 from app.services.file_service import FileService
-
+from app.api.v1.articles import router as articles_router
 
 app = FastAPI(
     title="Your Job API",
@@ -20,25 +19,9 @@ app = FastAPI(
 FileService.ensure_dirs()
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
-@app.on_event("startup")
-def on_startup():
-    Base.metadata.create_all(bind=engine)
-    # Ensure DB schema matches models when migrations aren't used.
-    # Add `photo_path` column to `students` table if it's missing.
-    with engine.connect() as conn:
-        try:
-            conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS photo_path VARCHAR(500);"))
-            # Ensure verification fields exist (varchar/text used as safe fallback)
-            conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50);"))
-            conn.execute(text("ALTER TABLE students ADD COLUMN IF NOT EXISTS verification_comment TEXT;"))
-            # Ensure new user fields exist (email verification columns)
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_email_verified BOOLEAN NOT NULL DEFAULT FALSE;"))
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_code VARCHAR(6);"))
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_expires_at TIMESTAMP;"))
-            conn.commit()
-        except Exception:
-            # Do not fail startup for non-critical schema adjustments
-            pass
+# @app.on_event("startup")
+# def on_startup():
+#     Base.metadata.create_all(bind=engine)
 
 
 app.include_router(auth_router, prefix="/api/v1")
@@ -47,6 +30,7 @@ app.include_router(internships_router, prefix="/api/v1")
 app.include_router(applications_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
+app.include_router(articles_router, prefix="/api/v1")
 
 @app.get("/")
 def root():

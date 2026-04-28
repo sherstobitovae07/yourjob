@@ -39,10 +39,7 @@ class ProfileRepository:
         student.university = university
         student.faculty = faculty
         student.specialty = specialty
-        # Only update resume_path when an explicit value is provided.
-        # This prevents accidental clearing when update requests omit the field.
-        if resume_path is not None:
-            student.resume_path = resume_path
+        student.resume_path = resume_path
         self.db.add(student)
         return student
 
