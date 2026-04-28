@@ -1,8 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from 'next/link';
 import { dashboardService } from "@/services/dashboardService";
 import type { InternshipApplicationResponse } from "@/types/dashboard";
+import DeleteApplicationAsEmployerModal from './DeleteApplicationAsEmployerModal';
+import ConfirmStatusChangeModal from './ConfirmStatusChangeModal';
+import modalStyles from '@/styles/components/modal.module.css';
+import styles from '@/styles/components/applications.module.css';
 interface ApplicationsModalProps {
   internshipId: number;
   internshipTitle: string;
@@ -13,11 +17,17 @@ export default function ApplicationsModal({
   internshipTitle,
   onClose,
 }: ApplicationsModalProps) {
+  
   const [applications, setApplications] = useState<InternshipApplicationResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusLoading, setStatusLoading] = useState<Record<number, boolean>>({});
   const [rowErrors, setRowErrors] = useState<Record<number, string>>({});
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedToDelete, setSelectedToDelete] = useState<number | null>(null);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmTargetStatus, setConfirmTargetStatus] = useState<'APPROVED' | 'REJECTED' | null>(null);
+  const [confirmApplicationId, setConfirmApplicationId] = useState<number | null>(null);
   useEffect(() => {
     const loadApplications = async () => {
       try {
@@ -54,10 +64,10 @@ export default function ApplicationsModal({
     if (status === "REJECTED") return "ОТКЛОНЕНО";
     return "НЕ УКАЗАНО";
   };
-  const getStatusClass = (status: string | null) => {
-    if (status === "PENDING") return "status-pending";
-    if (status === "APPROVED") return "status-approved";
-    if (status === "REJECTED") return "status-rejected";
+  const getStatusClassName = (status: string | null) => {
+    if (status === "PENDING") return styles.applicationStatusPending || "";
+    if (status === "APPROVED") return styles.statusApproved || "";
+    if (status === "REJECTED") return styles.statusRejected || "";
     return "";
   };
   const formatDate = (dateString: string | null) => {
@@ -104,28 +114,29 @@ export default function ApplicationsModal({
                     </td>
                     <td>{app.student_email || "—"}</td>
                     <td>
-                      <span className={`status-badge ${getStatusClass(app.status)}`}>
+                      <span className={`${styles.statusBadge} ${getStatusClassName(app.status)}`}>
                         {getStatusLabel(app.status)}
                       </span>
                     </td>
                     <td>{formatDate(app.applied_at)}</td>
                     <td>
-                      <div className="action-buttons-row">
+                      <div className={styles.actionButtonsRow}>
                         <Link
                           href={`/dashboard/student/${app.student_id}?first_name=${encodeURIComponent(app.student_first_name ?? "")}&last_name=${encodeURIComponent(app.student_last_name ?? "")}&email=${encodeURIComponent(app.student_email ?? "")}`}
-                          className="status-action-btn profile"
+                          className={styles.profileLinkText}
+                          onClick={() => onClose()}
                         >
-                          Профиль
+                          Просмотреть профиль
                         </Link>
                         {(app.status !== "APPROVED" || app.status === null) && (
                           <button
-                            className="status-action-btn status-action-btn-approve"
+                            className={`${styles.smallRoleBtn} ${styles.smallRoleBtnPrimary}`}
                             type="button"
                             disabled={!!statusLoading[app.id]}
                             onClick={() => {
-                              if (window.confirm("Вы уверены, что хотите принять эту заявку?")) {
-                                handleStatusChange(app.id, "APPROVED");
-                              }
+                              setConfirmApplicationId(app.id);
+                              setConfirmTargetStatus('APPROVED');
+                              setConfirmModalOpen(true);
                             }}
                           >
                             Принять
@@ -133,18 +144,28 @@ export default function ApplicationsModal({
                         )}
                         {(app.status !== "REJECTED" || app.status === null) && (
                           <button
-                            className="status-action-btn status-action-btn-reject"
+                            className={`${styles.smallRoleBtn} ${styles.smallRoleBtnPrimary}`}
                             type="button"
                             disabled={!!statusLoading[app.id]}
                             onClick={() => {
-                              if (window.confirm("Вы уверены, что хотите отклонить эту заявку?")) {
-                                handleStatusChange(app.id, "REJECTED");
-                              }
+                              setConfirmApplicationId(app.id);
+                              setConfirmTargetStatus('REJECTED');
+                              setConfirmModalOpen(true);
                             }}
                           >
                             Отклонить
                           </button>
                         )}
+                        <button
+                          className={`${styles.smallRoleBtn} ${styles.smallRoleBtnDanger}`}
+                          type="button"
+                          onClick={() => {
+                            setSelectedToDelete(app.id);
+                            setDeleteModalOpen(true);
+                          }}
+                        >
+                          Удалить
+                        </button>
                       </div>
                       {rowErrors[app.id] && <p className="row-error">{rowErrors[app.id]}</p>}
                     </td>
@@ -155,6 +176,29 @@ export default function ApplicationsModal({
           </div>
         )}
       </div>
+      <DeleteApplicationAsEmployerModal
+        open={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setSelectedToDelete(null); }}
+        applicationId={selectedToDelete}
+        onDeleted={() => {
+          if (selectedToDelete) setApplications((prev) => prev.filter((a) => a.id !== selectedToDelete));
+        }}
+      />
+      <ConfirmStatusChangeModal
+        open={confirmModalOpen}
+        onClose={() => { setConfirmModalOpen(false); setConfirmApplicationId(null); setConfirmTargetStatus(null); }}
+        applicationId={confirmApplicationId}
+        targetStatus={confirmTargetStatus}
+        onConfirmed={(updatedStatus) => {
+          if (confirmApplicationId && updatedStatus) {
+            setApplications((prev) => prev.map((a) => (a.id === confirmApplicationId ? { ...a, status: updatedStatus as InternshipApplicationResponse['status'] } : a)));
+            setRowErrors((prev) => ({ ...prev, [confirmApplicationId]: '' }));
+          }
+          setConfirmModalOpen(false);
+          setConfirmApplicationId(null);
+          setConfirmTargetStatus(null);
+        }}
+      />
     </div>
   );
 }

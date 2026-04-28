@@ -92,6 +92,37 @@ async def upload_student_photo(
     return MessageResponse(message="Фото студента успешно загружено")
 
 
+@router.get("/student/{student_id}", response_model=StudentProfileResponse)
+def get_student_profile_by_id(
+    student_id: int,
+    db: Session = Depends(get_db),
+):
+    """Public endpoint to fetch a student's public profile by student id."""
+    repository = ProfileRepository(db)
+    student = repository.get_student_by_user_id(student_id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Профиль студента не найден")
+
+    user = student.user
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    return StudentProfileResponse(
+        id=user.id,
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        role=user.role,
+        university=student.university,
+        faculty=student.faculty,
+        specialty=student.specialty,
+        resume_path=student.resume_path,
+        photo_path=student.photo_path,
+        verification_status=student.verification_status,
+        verification_comment=student.verification_comment,
+    )
+
+
 @router.post("/student/me/resume", response_model=MessageResponse)
 async def upload_student_resume(
     file: UploadFile = File(...),

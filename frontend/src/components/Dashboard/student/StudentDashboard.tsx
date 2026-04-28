@@ -8,6 +8,7 @@ import type { ApplicationItem } from '@/types/dashboard';
 import { getInternshipImage, parseDateFromString, formatRuDate, formatStatus, getFirstSentence } from '@/utils/internshipUtils';
 import InternshipListWithFilters from '@/components/internship/InternshipListWithFilters';
 import styles from "@/app/page.module.css";
+import StudentDeleteApplicationModal from './StudentDeleteApplicationModal';
 
 type ApplicationWithDetails = ApplicationItem & {
   description?: string | null;
@@ -25,6 +26,8 @@ export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState<"internships" | "applications">("internships");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<number | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -68,6 +71,18 @@ export default function StudentDashboard() {
 
     loadData();
   }, []);
+
+  const handleDeleteApplication = (applicationId?: number) => {
+    if (!applicationId) return;
+    setSelectedApplicationId(applicationId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeletedConfirmed = () => {
+    if (!selectedApplicationId) return;
+    setApplications((prev) => prev.filter((a) => a.id !== selectedApplicationId));
+    setSelectedApplicationId(null);
+  };
 
   if (loading) {
     return <div className="student-dashboard loading">Загрузка...</div>;
@@ -147,6 +162,12 @@ export default function StudentDashboard() {
                         >
                           Подробнее
                         </Link>
+                        <button
+                          className={`${styles.roleBtn} ${styles.roleBtnActive}`}
+                          onClick={() => handleDeleteApplication(app.id)}
+                        >
+                          Удалить
+                        </button>
                       </div>
                     </div>
                   </article>
@@ -157,6 +178,12 @@ export default function StudentDashboard() {
           </>
         )}
       </section>
+      <StudentDeleteApplicationModal
+        open={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setSelectedApplicationId(null); }}
+        applicationId={selectedApplicationId}
+        onDeleted={handleDeletedConfirmed}
+      />
     </main>
   );
 }

@@ -385,6 +385,31 @@
   box-shadow: 0 6px 20px rgba(6, 182, 212, 0.25);
 }
 
+/* Outline variant with green border for better visibility */
+.roleBtnOutlineGreen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  padding: 10px 20px;
+  height: 42px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--primary-green);
+  background: rgba(16, 185, 129, 0.04);
+  border: 2px solid var(--primary-green);
+  box-shadow: 0 6px 18px rgba(16,185,129,0.06);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.roleBtnOutlineGreen:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(16,185,129,0.09);
+}
+
 /* Danger variant that matches the profile 'Удалить аккаунт' button (large size) */
 .roleBtnDanger {
   display: inline-flex;
@@ -444,6 +469,73 @@
   font-size: 17px;
   color: #0f172a;
 }
+
+/* Application modal specific styles */
+.applicationModalTitle {
+  margin: 0 0 12px 0;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+.profileLinkText {
+  color: var(--primary-cyan);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Make pending application status blue to match internship statuses */
+.application-status-pending {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(6, 182, 212, 0.12);
+  color: #0284c7;
+  border: 1px solid rgba(6, 182, 212, 0.22);
+  text-transform: uppercase;
+}
+
+.action-buttons-row { display:flex; gap:10px; align-items:center; }
+
+.status-action-btn { border: none; cursor: pointer; }
+.status-action-btn-approve { }
+.status-action-btn-reject { }
+.status-action-btn-delete { }
+
+/* Small rounded action buttons used inside applications modal */
+.smallRoleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  height: 36px;
+  border-radius: 400px;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.smallRoleBtnPrimary {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(6,182,212,0.18);
+}
+.smallRoleBtnPrimary:hover { transform: translateY(-2px); }
+.smallRoleBtnDanger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(220,38,38,0.14);
+}
+.smallRoleBtnDanger:hover { transform: translateY(-2px); }
+
+/* module-compatible class keys (camelCase) for JSX usage */
+.actionButtonsRow { display:flex; gap:10px; align-items:center; }
+.statusBadge { font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 999px; background: rgba(2, 132, 199, 0.1); color: #0284c7; text-transform: uppercase; }
+.applicationStatusPending { font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 999px; background: rgba(6, 182, 212, 0.12); color: #0284c7; border: 1px solid rgba(6, 182, 212, 0.22); text-transform: uppercase; }
+.statusApproved { background: rgba(167, 240, 217, 0.75); color: #0f766e; border: 1px solid rgba(34, 211, 238, 0.4); }
+.statusRejected { background: rgba(254, 202, 202, 0.75); color: #991b1b; border: 1px solid rgba(248, 113, 113, 0.35); }
 
 .applicationCompany {
   margin: 2px 0 0;
@@ -623,6 +715,20 @@
 }
 
 .internshipCardActions {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+}
+
+.internshipCardActions .roleBtn {
+  min-width: 160px;
+  padding: 10px 20px;
+  width: auto;
+}
+.internshipCardActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
   position: absolute;
   right: 20px;
   bottom: 20px;

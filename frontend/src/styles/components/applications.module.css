@@ -1,0 +1,80 @@
+.profileLinkText {
+  color: #06b6d4;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.statusBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+  text-transform: uppercase;
+}
+
+.applicationStatusPending {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(6, 182, 212, 0.12);
+  color: #0284c7;
+  border: 1px solid rgba(6, 182, 212, 0.22);
+  text-transform: uppercase;
+}
+
+.statusApproved { background: rgba(167, 240, 217, 0.75); color: #0f766e; border: 1px solid rgba(34, 211, 238, 0.4); }
+.statusRejected { background: rgba(254, 202, 202, 0.75); color: #991b1b; border: 1px solid rgba(248, 113, 113, 0.35); }
+
+.actionButtonsRow { display:flex; gap:10px; align-items:center; }
+
+.smallRoleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  height: 36px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.smallRoleBtnPrimary {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(6,182,212,0.18);
+}
+.smallRoleBtnPrimary:hover { transform: translateY(-2px); }
+.smallRoleBtnDanger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(220,38,38,0.14);
+}
+.smallRoleBtnDanger:hover { transform: translateY(-2px); }
+
+/* Override modal close button for the applications modal (remove hover circle, make larger) */
+:global(.applications-modal) .modal-close {
+  background: transparent !important;
+  border: none !important;
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 28px !important;
+  color: #0f172a !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+:global(.applications-modal) .modal-close:hover {
+  background: transparent !important;
+  transform: none !important;
+}

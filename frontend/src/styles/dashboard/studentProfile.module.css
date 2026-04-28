@@ -1,0 +1,245 @@
+:root{
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+}
+
+.main {
+  min-height: 100vh;
+  padding: 48px 24px 40px;
+  background: var(--bg-gradient);
+}
+
+.container{ 
+  max-width:1200px; 
+  margin:0 auto; 
+}
+
+.header{ 
+  margin-bottom:16px; 
+  display:flex; 
+  justify-content:space-between; 
+  align-items:center; 
+  gap:24px;
+}
+
+.title{ 
+  margin:0; 
+  color:#f8fafc; 
+  font-size:36px; 
+  font-weight:800; 
+  line-height:1.1;
+}
+
+.backButton{ 
+  padding:10px 20px; 
+  border-radius:14px; 
+  background:linear-gradient(135deg,#06b6d4 0%,#10b981 100%); 
+  color:#fff; 
+  font-weight:700; 
+  text-decoration:none; 
+  white-space:nowrap; 
+  font-size:13px; 
+  text-transform:uppercase; 
+  letter-spacing:0.02em;
+}
+
+.loadingBox{ 
+  background: rgba(15,23,42,0.95); 
+  border:1px solid rgba(6,182,212,0.2); 
+  border-radius:24px; 
+  padding:60px 32px; 
+  text-align:center;
+}
+
+.loadingText{ 
+  color:#cbd5e1; 
+  font-size:16px;
+}
+
+.twoCol{ 
+  display:grid; 
+  grid-template-columns:300px 1fr; 
+  gap:20px; 
+  margin-bottom:24px;
+}
+
+.leftCard{ 
+  background:#fff; 
+  border:1px solid #e2e8f0; 
+  border-radius:24px; 
+  padding:0; 
+  box-shadow:0 10px 30px rgba(15,23,42,0.06); 
+  overflow:hidden;
+}
+
+.imageWrap{ 
+  padding:24px 8px 12px; 
+  display:flex; 
+  justify-content:center; 
+}
+
+.img{ 
+  width:260px; 
+  height:260px; 
+  object-fit:cover; 
+  display:block; 
+  border-radius:14px;
+}
+
+.placeholder{ 
+  border-radius:14px; 
+  width:260px; 
+  height:260px; 
+  background:#f1f5f9; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  color:#0f172a; 
+  font-weight:700; 
+  font-size:64px; 
+}
+
+.leftFooter{ 
+  text-align:center; 
+  padding:12px 12px 20px;
+}
+
+.leftName{ 
+  font-size:20px; 
+  font-weight:700; 
+  color:#0f172a; 
+  margin-bottom:8px;
+}
+
+.leftEmail{
+  color:#0f172a;
+  font-size:16px;
+  font-weight:600;
+  margin-top:4px;
+}
+
+.rightCard{ 
+  background:#fff; 
+  border:1px solid #e2e8f0; 
+  border-radius:18px; 
+  padding:24px; 
+  box-shadow:0 10px 30px rgba(15,23,42,0.06);
+}
+
+.educationTitle{ 
+  margin:0 0 18px; 
+  color:#0f172a; 
+  font-size:20px; 
+  font-weight:700;
+}
+
+.fieldGrid{ 
+  display:grid; 
+  gap:24px; 
+}
+
+.fieldLabel{ 
+  display:block; 
+  color:#64748b; 
+  font-size:12px; 
+  font-weight:700; 
+  text-transform:uppercase; 
+  letter-spacing:0.05em; 
+  margin-bottom:0; 
+}
+
+.fieldValue{ 
+  width:100%; 
+  min-height:48px; 
+  padding:12px 14px; 
+  border-radius:12px; 
+  background:#f8fafc; 
+  border:1px solid #e2e8f0; 
+  display:flex; 
+  align-items:center; 
+  color:#1f2937; 
+  font-size:15px; 
+  font-weight:600;
+}
+
+/* Resume field: wider gray container similar to .fieldValue but spans the grid */
+.resumeField{
+  grid-column: 1 / -1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  width:100%;
+  min-height:64px;
+  padding:10px 14px;
+  margin-top:2px;
+  border-radius:12px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+}
+
+.row{ 
+  display:grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap:16px;
+}
+
+.resumeTitle{
+  /* kept for backward compatibility, but prefer using .fieldLabel */
+  margin-top:18px;
+  margin-bottom:8px;
+  font-weight:700;
+  color:#0f172a;
+}
+
+.resumeRow{ 
+  margin-top:0; 
+  display:flex; 
+  align-items:center; 
+  gap:10px; 
+}
+
+.resumeIcon{ 
+  width:48px; 
+  height:48px; 
+  background:rgba(6,182,212,0.2); 
+  border-radius:12px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  font-size:24px;
+}
+
+.resumeName{ 
+  flex:1; 
+  margin:0; 
+  color:#1f2937; 
+  font-size:16px; 
+  font-weight:600;
+  word-break:break-all;
+}
+
+.resumeButton{ 
+  padding:10px 18px; 
+  border-radius:12px; 
+  background:linear-gradient(135deg,#06b6d4 0%,#10b981 100%); 
+  color:#fff; 
+  text-transform:uppercase; 
+  font-weight:700; 
+  font-size:14px; 
+  border:none; 
+  cursor:pointer;
+}
+
+.infoBox{ 
+  background:#d1f5ff; 
+  border:1px solid #7dd3fc; 
+  border-radius:24px; 
+  padding:24px 32px;
+}
+
+.infoBox p{ 
+  margin:0; 
+  color:#0f172a; 
+  font-size:16px; 
+  line-height:1.6;
+}

@@ -110,8 +110,16 @@ export const dashboardService = {
     const res = await apiClient.get("/applications/my");
     return res.data;
   },
+  deleteMyApplication: async (application_id: number): Promise<void> => {
+    const res = await apiClient.delete(`/applications/my/${application_id}`);
+    return res.data;
+  },
   getApplicationsByInternship: async (internship_id: number): Promise<InternshipApplicationResponse[]> => {
     const res = await apiClient.get(`/applications/internship/${internship_id}`);
+    return res.data;
+  },
+  deleteApplicationAsEmployer: async (application_id: number): Promise<void> => {
+    const res = await apiClient.delete(`/applications/employer/${application_id}`);
     return res.data;
   },
   updateApplicationStatus: async (application_id: number, payload: { status: string }): Promise<ApplicationResponse> => {
