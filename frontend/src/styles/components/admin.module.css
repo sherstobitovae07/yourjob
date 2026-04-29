@@ -69,8 +69,9 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+  /* default: 3 columns on wide screens for better vertical grouping */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
   margin-bottom: 30px;
 }
 
@@ -406,9 +407,13 @@
     align-items: flex-start;
   }
 
+  /* Tablet: two columns */
   .statsGrid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  /* Mobile: single column stacked */
+  /* Mobile rules moved to separate media query below */
 
   .statValue {
     font-size: 24px;
@@ -427,6 +432,13 @@
   .reportActions {
     flex-wrap: wrap;
     margin-left: 0;
+  }
+}
+
+/* Mobile: single column stacked */
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
   }
 }
 

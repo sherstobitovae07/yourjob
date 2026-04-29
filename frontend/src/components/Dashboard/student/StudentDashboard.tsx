@@ -7,6 +7,7 @@ import type { InternshipPublicResponse } from '@/types/internship';
 import type { ApplicationItem } from '@/types/dashboard';
 import { getInternshipImage, parseDateFromString, formatRuDate, formatStatus, getFirstSentence } from '@/utils/internshipUtils';
 import InternshipListWithFilters from '@/components/internship/InternshipListWithFilters';
+import ArticleList from '@/components/article/ArticleList';
 import styles from "@/app/page.module.css";
 import StudentDeleteApplicationModal from './StudentDeleteApplicationModal';
 
@@ -23,7 +24,8 @@ type ApplicationWithDetails = ApplicationItem & {
 export default function StudentDashboard() {
   const [internships, setInternships] = useState<InternshipPublicResponse[]>([]);
   const [applications, setApplications] = useState<ApplicationWithDetails[]>([]);
-  const [activeTab, setActiveTab] = useState<"internships" | "applications">("internships");
+  const [activeTab, setActiveTab] = useState<"internships" | "applications" | "articles">("internships");
+  const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -35,9 +37,10 @@ export default function StudentDashboard() {
         setLoading(true);
         setError(null);
 
-        const [internshipsData, applicationsData] = await Promise.all([
+        const [internshipsData, applicationsData, allArticles] = await Promise.all([
           dashboardService.getActiveInternships(),
           dashboardService.getMyApplications(),
+          (await import('@/services/articleService')).articleService.getArticles(),
         ]);
 
         const applicationsWithDetails = await Promise.all(
@@ -62,6 +65,7 @@ export default function StudentDashboard() {
 
         setInternships(internshipsData);
         setApplications(applicationsWithDetails);
+        setArticles(allArticles || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Не удалось загрузить данные");
       } finally {
@@ -92,6 +96,8 @@ export default function StudentDashboard() {
     return <div className="student-dashboard error">Ошибка: {error}</div>;
   }
 
+  const publishedCount = (articles || []).filter((a: any) => a.published === true).length;
+
   return (
     <main className={styles.main}>
       <section className={styles.hero}>
@@ -109,6 +115,12 @@ export default function StudentDashboard() {
           Активные стажировки ({internships.length})
         </button>
         <button
+          className={`${styles.roleBtn} ${activeTab === "articles" ? styles.roleBtnActive : ""}`}
+          onClick={() => setActiveTab("articles")}
+        >
+          Статьи ({publishedCount})
+        </button>
+        <button
           className={`${styles.roleBtn} ${activeTab === "applications" ? styles.roleBtnActive : ""}`}
           onClick={() => setActiveTab("applications")}
         >
@@ -120,6 +132,17 @@ export default function StudentDashboard() {
         {activeTab === "internships" ? (
           <>
             <InternshipListWithFilters />
+          </>
+        ) : activeTab === "articles" ? (
+          <>
+            {/* show articles list (students read all published articles) */}
+            <div style={{ marginTop: 8 }}>
+              {(() => {
+                // only show published articles to students
+                const published = (articles || []).filter((a: any) => a.published === true);
+                return <ArticleList articles={published} showActions={false} showStatus={false} />;
+              })()}
+            </div>
           </>
         ) : (
           <>

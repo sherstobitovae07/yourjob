@@ -24,10 +24,22 @@ class ArticleService:
             is_published=is_published,
         )
 
+        author_name = None
+        try:
+            if article.author:
+                fn = article.author.first_name or ""
+                ln = article.author.last_name or ""
+                author_name = (fn + " " + ln).strip() or None
+        except Exception:
+            author_name = None
+
         return ArticleResponse(
             id=article.id,
             title=article.title,
             content=article.content,
+            author_id=article.author_id,
+            author_name=author_name,
+            published=bool(article.is_published),
             created_at=article.created_at,
         )
 
@@ -46,32 +58,62 @@ class ArticleService:
 
     def get_articles(self):
         articles = self.repository.get_all_published()
-        return [
-            ArticleResponse(
-                id=a.id,
-                title=a.title,
-                content=a.content,
-                created_at=a.created_at,
+        result = []
+        for a in articles:
+            author_name = None
+            try:
+                if a.author:
+                    fn = a.author.first_name or ""
+                    ln = a.author.last_name or ""
+                    author_name = (fn + " " + ln).strip() or None
+            except Exception:
+                author_name = None
+
+            result.append(
+                ArticleResponse(
+                    id=a.id,
+                    title=a.title,
+                    content=a.content,
+                    author_id=a.author_id,
+                    author_name=author_name,
+                    published=bool(a.is_published),
+                    created_at=a.created_at,
+                )
             )
-            for a in articles
-        ]
+
+        return result
 
     def get_pending_articles(self, current_user):
-        if current_user.role != UserRole.ADMIN:
-            raise HTTPException(403, "Доступ только для администратора")
+        # Admins can see all pending articles; employers can see only their own pending articles
+        if current_user.role == UserRole.ADMIN:
+            articles = self.repository.get_pending()
+        else:
+            articles = self.repository.get_pending_by_author(current_user.id)
 
-        articles = self.repository.get_pending()
+        result = []
+        for a in articles:
+            author_name = None
+            try:
+                if a.author:
+                    fn = a.author.first_name or ""
+                    ln = a.author.last_name or ""
+                    author_name = (fn + " " + ln).strip() or None
+            except Exception:
+                author_name = None
 
-        return [
-            ArticleResponse(
-                id=a.id,
-                title=a.title,
-                content=a.content,
-                created_at=a.created_at,
+            result.append(
+                ArticleResponse(
+                    id=a.id,
+                    title=a.title,
+                    content=a.content,
+                    author_id=a.author_id,
+                    author_name=author_name,
+                    published=bool(a.is_published),
+                    created_at=a.created_at,
+                )
             )
-            for a in articles
 
-        ]
+        return result
 
     def delete_article(self, current_user, article_id):
         if current_user.role != UserRole.ADMIN:

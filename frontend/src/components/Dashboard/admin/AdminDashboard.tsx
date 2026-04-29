@@ -13,10 +13,11 @@ import { StudentsList } from '@/components/dashboard/admin/StudentsList';
 import { ReportsList } from '@/components/dashboard/ReportsList';
 import InternshipsList from './InternshipsList';
 import ApplicationsList from './ApplicationsList';
+import ArticlesList from './ArticlesList';
 import DeleteInternshipModal from './DeleteInternshipModal';
 import DeleteApplicationModal from './DeleteApplicationModal';
 
-type AdminTab = 'overview' | 'users' | 'employers' | 'students' | 'internships' | 'applications' | 'reports';
+type AdminTab = 'overview' | 'users' | 'employers' | 'students' | 'internships' | 'applications' | 'reports' | 'articles';
 
 export const AdminDashboard: React.FC = () => {
   const router = useRouter();
@@ -140,6 +141,12 @@ export const AdminDashboard: React.FC = () => {
           Отклики
         </button>
         <button
+          className={`${styles.adminTab} ${activeTab === 'articles' ? styles.adminTabActive : ''}`}
+          onClick={() => setActiveTab('articles')}
+        >
+          Статьи
+        </button>
+        <button
           className={`${styles.adminTab} ${activeTab === 'reports' ? styles.adminTabActive : ''}`}
           onClick={() => setActiveTab('reports')}
         >
@@ -162,6 +169,7 @@ export const AdminDashboard: React.FC = () => {
           <ApplicationsList applications={applications} />
         </>
       )}
+      {activeTab === 'articles' && <ArticlesList />}
       <DeleteUserModal
         open={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}

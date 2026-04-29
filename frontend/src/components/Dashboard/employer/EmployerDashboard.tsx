@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { dashboardService } from '@/services/dashboardService';
 import ApplicationsModal from '@/components/application/ApplicationsModal';
+import ArticleList from '@/components/article/ArticleList';
 import type { EmployerProfileData, InternshipResponse, InternshipPublicResponse } from '@/types/dashboard';
 import { getInternshipImage, parseDateFromString, formatRuDate, formatStatus, getFirstSentence } from '@/utils/internshipUtils';
 import InternshipListWithFilters from '@/components/internship/InternshipListWithFilters';
@@ -12,23 +13,89 @@ export default function EmployerDashboard() {
   const [profile, setProfile] = useState<EmployerProfileData | null>(null);
   const [activeInternships, setActiveInternships] = useState<InternshipPublicResponse[]>([]);
   const [myInternships, setMyInternships] = useState<InternshipResponse[]>([]);
-  const [activeTab, setActiveTab] = useState<"active" | "mine">("active");
+  const [activeTab, setActiveTab] = useState<"active" | "mine" | "articles">("active");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedInternshipForApps, setSelectedInternshipForApps] = useState<{ id: number; title: string } | null>(null);
+  const [myArticles, setMyArticles] = useState<any[]>([]);
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const [profileData, activeData, myData] = await Promise.all([
+        const [profileData, activeData, myData, currentUser] = await Promise.all([
           dashboardService.getEmployerProfile(),
           dashboardService.getActiveInternships(),
           dashboardService.getMyInternships(),
+          dashboardService.getCurrentUser(),
         ]);
+
+        // fetch published articles always. Only request pending list when user is admin.
+        const articleSvc = await import('@/services/articleService');
+        const published = await articleSvc.articleService.getArticles();
+        let pending: any[] = [];
+        try {
+          pending = await articleSvc.articleService.getPendingArticles();
+        } catch (e) {
+          // If backend returns error, ignore and fall back to empty array
+          // eslint-disable-next-line no-console
+          console.debug('EmployerDashboard: could not load pending articles, falling back', e);
+          pending = [];
+        }
+
+        try {
+          // eslint-disable-next-line no-console
+          console.debug('EmployerDashboard: loaded articles', { publishedCount: (published || []).length, pendingCount: (pending || []).length });
+          // eslint-disable-next-line no-console
+          console.debug('EmployerDashboard: currentUser', currentUser);
+        } catch (e) {
+          // ignore
+        }
         setProfile(profileData);
         setActiveInternships(activeData);
         setMyInternships(myData);
+        const byId = new Map<number, any>();
+        (published || []).forEach((p: any) => byId.set(p.id, { ...p, published: true }));
+        (pending || []).forEach((p: any) => byId.set(p.id, { ...p, published: false }));
+
+        const combined = Array.from(byId.values()).sort((a: any, b: any) => b.id - a.id);
+
+        const my = (combined || []).filter((a: any) => a.author_id === currentUser.id);
+        // also check sessionStorage for newly created article (in case backend GET excludes pending)
+        try {
+          // sessionStorage single-item fallback
+          const pendingRaw = sessionStorage.getItem('newArticle');
+          // eslint-disable-next-line no-console
+          console.debug('EmployerDashboard: session newArticle raw', pendingRaw);
+          if (pendingRaw) {
+            const pending = JSON.parse(pendingRaw);
+            if (pending && !my.find((x: any) => x.id === pending.id)) my.unshift(pending);
+            sessionStorage.removeItem('newArticle');
+          }
+        } catch (e) {
+          // ignore
+        }
+        try {
+          // localStorage array fallback for persisted pending items
+          const arrRaw = localStorage.getItem('newArticles');
+          // eslint-disable-next-line no-console
+          console.debug('EmployerDashboard: local newArticles raw', arrRaw);
+          if (arrRaw) {
+            const arr = JSON.parse(arrRaw);
+            if (Array.isArray(arr)) {
+              arr.forEach((pending: any) => {
+                if (pending && !my.find((x: any) => x.id === pending.id)) my.unshift(pending);
+              });
+              // clear after consuming
+              localStorage.removeItem('newArticles');
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+        // eslint-disable-next-line no-console
+        console.debug('EmployerDashboard: myArticles count after merge', my.length, my.slice(0,5));
+        setMyArticles(my);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Не удалось загрузить данные");
       } finally {
@@ -51,9 +118,12 @@ export default function EmployerDashboard() {
         <div className={styles.intro}>
           <h1>Добро пожаловать, работодатель!</h1>
           <p>Создавайте стажировки и находите лучших кандидатов для своей команды.</p>
-          <div style={{ marginTop: "20px", display: "inline-block" }}>
+          <div style={{ marginTop: "20px", display: "flex", gap: "12px", justifyContent: "center" }}>
             <Link href="/dashboard/employer/create" className={`${styles.roleBtn} ${styles.roleBtnActive}`} style={{ minWidth: "260px", textAlign: "center" }}>
               + Создать стажировку
+            </Link>
+            <Link href="/dashboard/employer/create-article" className={`${styles.roleBtn} ${styles.roleBtnActive}`} style={{ minWidth: "260px", textAlign: "center" }}>
+              + Создать статью
             </Link>
           </div>
         </div>
@@ -66,16 +136,22 @@ export default function EmployerDashboard() {
           Активные стажировки ({activeInternships.length})
         </button>
         <button
-          className={`${styles.roleBtn} ${!isActiveTab ? styles.roleBtnActive : ""}`}
+          className={`${styles.roleBtn} ${activeTab === "mine" ? styles.roleBtnActive : ""}`}
           onClick={() => setActiveTab("mine")}
         >
           Мои стажировки ({myInternships.length})
+        </button>
+        <button
+          className={`${styles.roleBtn} ${activeTab === "articles" ? styles.roleBtnActive : ""}`}
+          onClick={() => setActiveTab("articles")}
+        >
+          Мои статьи ({myArticles.length})
         </button>
       </div>
       <section className={styles.internshipsSection}>
         {isActiveTab ? (
           <InternshipListWithFilters />
-        ) : (
+        ) : activeTab === "mine" ? (
           (myInternships.length === 0 ? (
             <p className={styles.emptyState}>Вы ещё не создали ни одной стажировки.</p>
           ) : (
@@ -139,8 +215,13 @@ export default function EmployerDashboard() {
                 );
               })}
             </div>
-          ))
-        )}
+            ))
+          ) : (
+            // articles tab
+            <div style={{ marginTop: 8 }}>
+              <ArticleList articles={myArticles} showActions={false} />
+            </div>
+          )}
       </section>
       {selectedInternshipForApps && (
         <ApplicationsModal

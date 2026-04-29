@@ -1,5 +1,5 @@
-import { AdminDashboard } from '../../../components/dashboard/admin/AdminDashboard';
+import ReactAdminWrapper from '../../../components/dashboard/admin/ReactAdminWrapper';
 
 export default function AdminPage() {
-  return <AdminDashboard />;
+  return <ReactAdminWrapper />;
 }

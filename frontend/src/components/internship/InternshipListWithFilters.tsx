@@ -122,6 +122,9 @@ export default function InternshipListWithFilters({ initialQ = "" }: { initialQ?
         <div className={styles.internshipGrid}>
           {internships.map((internship) => {
             const imageUrl = internship.image_url ?? getInternshipImage(internship.title);
+            const deadlineDate = parseDateFromString(internship.deadline);
+            const isExpired = internship.deadline ? (deadlineDate ?? new Date(0)) < new Date() : false;
+            const displayStatus = isExpired ? "CLOSED" : internship.status;
             return (
               <article key={internship.id} className={styles.internshipCard}>
                 <div className={styles.internshipImage}>
@@ -135,7 +138,7 @@ export default function InternshipListWithFilters({ initialQ = "" }: { initialQ?
                 <div className={styles.internshipContent}>
                   <div className={styles.internshipTopRow}>
                     <h3 className={styles.internshipTitle}>{internship.title || "Без названия"}</h3>
-                    <span className={styles.badge}>{formatStatus(internship.status)}</span>
+                    <span className={styles.badge}>{formatStatus(displayStatus)}</span>
                   </div>
                   <p className={styles.internshipDescription}>{getFirstSentence(internship.description) || "Описание отсутствует"}</p>
                   {internship.direction && <p className={styles.internshipCategory}>{internship.direction}</p>}
