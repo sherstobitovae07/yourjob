@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.models.enums import UserRole
+from app.models.enums import UserRole, VerificationStatus
 from app.models.user import User
 from app.repositories.internship_repository import InternshipRepository
 from app.schemas.internship import (
@@ -30,7 +30,11 @@ class InternshipService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Профиль работодателя не найден",
             )
-
+        if employer.verification_status != VerificationStatus.APPROVED:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Создавать стажировки могут только подтвержденные работодатели",
+            )
         internship = self.repository.create_internship(
             employer_id=employer.id,
             title=data.title,

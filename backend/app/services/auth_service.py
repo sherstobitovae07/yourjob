@@ -55,6 +55,7 @@ class AuthService:
             company_name=data.company_name,
             description=data.description,
             website=data.website,
+            inn=data.inn,
         )
         code = self._set_email_verification_code(user)
         EmailService.send_verification_code(user.email, code)

@@ -96,3 +96,26 @@ class AdminRepository:
 
     def get_internship_by_id(self, internship_id: int) -> Internship | None:
         return self.db.query(Internship).filter(Internship.id == internship_id).first()
+
+    def get_pending_employers(self) -> list[Employer]:
+        return (
+            self.db.query(Employer)
+            .options(joinedload(Employer.user))
+            .filter(Employer.verification_status == VerificationStatus.PENDING)
+            .order_by(Employer.id.desc())
+            .all()
+        )
+
+    def get_employer_by_id(self, employer_id: int) -> Employer | None:
+        return (
+            self.db.query(Employer)
+            .options(joinedload(Employer.user))
+            .filter(Employer.id == employer_id)
+            .first()
+        )
+
+    def save_employer(self, employer: Employer) -> Employer:
+        self.db.add(employer)
+        self.db.commit()
+        self.db.refresh(employer)
+        return employer

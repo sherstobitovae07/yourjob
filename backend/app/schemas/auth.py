@@ -22,7 +22,7 @@ class EmployerRegisterRequest(BaseModel):
     company_name: str | None = Field(default=None, max_length=255)
     description: str | None = None
     website: str | None = Field(default=None, max_length=255)
-
+    inn: str | None = Field(default=None, max_length=12)
 
 class LoginRequest(BaseModel):
     email: EmailStr
