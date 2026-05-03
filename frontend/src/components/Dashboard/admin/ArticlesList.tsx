@@ -13,6 +13,7 @@ export const ArticlesList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [pendingOnly, setPendingOnly] = useState(false);
 
   const load = async () => {
     try {
@@ -135,14 +136,24 @@ export const ArticlesList: React.FC = () => {
   return (
     <div className={styles.section}>
       <h3 className={styles.sectionTitle}>Статьи на модерацию ({filtered.length})</h3>
-      <div style={{ marginBottom: 12 }}>
-        <input
-          type="text"
-          placeholder="Поиск по заголовку или автору..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e5e5', borderRadius: 6 }}
-        />
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div style={{ flex: 1 }} className={styles.searchRow}>
+          <input
+            type="text"
+            placeholder="Поиск по заголовку или автору..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+        <div style={{ whiteSpace: 'nowrap' }}>
+          <button
+            className={styles.reportBtn}
+            onClick={() => setPendingOnly((v) => !v)}
+          >
+            {pendingOnly ? 'Показать все' : 'Только ожидающие'}
+          </button>
+        </div>
       </div>
       <div className={styles.responsive}>
         <table className={styles.table}>
@@ -156,7 +167,9 @@ export const ArticlesList: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map(item => (
+            {filtered
+              .filter((a) => (pendingOnly ? !a.published : true))
+              .map(item => (
               <tr key={item.id} className={styles.tableRow}>
                 <td className={styles.tableCell}>{item.title}</td>
                 <td className={styles.tableCell}>{item.author_name || (item.author_id ? `ID ${item.author_id}` : 'Не указано')}</td>
@@ -164,11 +177,20 @@ export const ArticlesList: React.FC = () => {
                 <td className={`${styles.tableCell} ${styles.tableCellSecondary}`}>{item.created_at ? item.created_at.split('T')[0] : ''}</td>
                 <td className={styles.tableCell}>
                   <div className={styles.reportActions}>
-                    <button className={styles.reportBtnSecondary} onClick={() => setPreviewArticle(item)}>Просмотреть</button>
                     {!item.published && (
                       <button className={styles.reportBtn} onClick={() => handlePublish(item.id)}>Опубликовать</button>
                     )}
-                    <button className={styles.reportBtnDanger} onClick={() => handleDelete(item.id)}>Удалить</button>
+                    <span className={styles.statusIcon}>
+                      <img
+                        src="/Grid-View--Streamline-Sharp-Material-Symbols.svg"
+                        alt="Просмотреть"
+                        className={styles.reviewIcon}
+                        onClick={() => setPreviewArticle(item)}
+                      />
+                    </span>
+                    <button className={styles.actionIconBtn} onClick={() => handleDelete(item.id)} title="Удалить">
+                      <img src="/Delete--Streamline-Sharp-Material-Symbols.svg" alt="Удалить" />
+                    </button>
                   </div>
                 </td>
               </tr>

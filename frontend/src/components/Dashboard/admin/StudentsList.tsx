@@ -26,6 +26,19 @@ export const StudentsList: React.FC<StudentsListProps> = ({ students }) => {
   const [selectedStudent, setSelectedStudent] = useState<AdminStudent | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // lock body scroll when review modal is open to avoid double scrollbars
+  useEffect(() => {
+    const original = typeof window !== 'undefined' ? document.body.style.overflow : '';
+    if (reviewOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = original || '';
+    }
+    return () => {
+      document.body.style.overflow = original || '';
+    };
+  }, [reviewOpen]);
+
   const filteredStudents = useMemo(() => {
     const source = pendingOnly ? (pendingStudents ?? []) : localStudents;
     return filterStudents(source, searchTerm);
@@ -43,24 +56,19 @@ export const StudentsList: React.FC<StudentsListProps> = ({ students }) => {
   }
 
   return (
-    <div className={styles.section}>
+    <div className={`${styles.section} ${styles.wideRows}`}>
       <h3 className={styles.sectionTitle}>Студенты ({filteredStudents.length})</h3>
 
-      <div style={{ marginBottom: '15px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <input
-          type="text"
-          placeholder="Поиск по email, ФИ, университету..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px 12px',
-            border: '1px solid #e5e5e5',
-            borderRadius: '6px',
-            fontSize: '14px',
-            boxSizing: 'border-box',
-          }}
-        />
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div style={{ flex: 1 }} className={styles.searchRow}>
+          <input
+            type="text"
+            placeholder="Поиск по email, ФИ, университету..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
         <div style={{ whiteSpace: 'nowrap' }}>
           <button
             className={styles.reportBtn}
@@ -69,13 +77,11 @@ export const StudentsList: React.FC<StudentsListProps> = ({ students }) => {
               setPendingOnly(newVal);
               setPendingError(null);
               if (newVal && pendingStudents === null) {
-                // load pending students from API
                 try {
                   setPendingLoading(true);
                   const list = await adminService.getPendingStudents();
                   setPendingStudents(list);
                 } catch (err) {
-                  // eslint-disable-next-line no-console
                   console.error('Failed to load pending students:', err);
                   setPendingError('Не удалось загрузить ожидающих студентов');
                 } finally {
@@ -100,7 +106,6 @@ export const StudentsList: React.FC<StudentsListProps> = ({ students }) => {
               <th className={styles.tableHeaderCell}>ФИ</th>
               <th className={styles.tableHeaderCell}>Университет</th>
               <th className={styles.tableHeaderCell}>Специализация</th>
-              <th className={styles.tableHeaderCell}>Год выпуска</th>
               <th className={styles.tableHeaderCell}>Дата создания</th>
               <th className={styles.tableHeaderCell}>Статус</th>
             </tr>
@@ -112,9 +117,10 @@ export const StudentsList: React.FC<StudentsListProps> = ({ students }) => {
                 <td className={styles.tableCell}>{getFullName(student.first_name, student.last_name)}</td>
                 <td className={styles.tableCell}>{student.university || 'Не указан'}</td>
                 <td className={styles.tableCell}>{student.specialization || 'Не указана'}</td>
-                <td className={styles.tableCell}>{student.graduation_year || 'Не указан'}</td>
                 <td className={`${styles.tableCell} ${styles.tableCellSecondary}`}>
-                  {formatDate(student.created_at)}
+                  {formatDate(
+                    student.created_at ?? (student as any).registered_at ?? (student as any).createdAt ?? (student as any).registeredAt ?? null
+                  )}
                 </td>
                 <td className={`${styles.tableCell} ${styles.statusCell}`}>
                   <span className={styles.statusText}>

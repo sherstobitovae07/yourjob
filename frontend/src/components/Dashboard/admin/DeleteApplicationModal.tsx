@@ -18,11 +18,14 @@ export const DeleteApplicationModal: React.FC<Props> = ({ open, onClose, applica
 
   const handleDelete = async () => {
     try {
-      await deleteApplication(applicationId);
-      onDeleted && onDeleted();
-      onClose();
+      const ok = await deleteApplication(applicationId);
+      if (ok) {
+        onDeleted && onDeleted();
+        onClose();
+      }
+      // if not ok, hook sets error and we keep modal open
     } catch (err) {
-      // handled in hook
+      // unexpected; hook handles known errors
     }
   };
 

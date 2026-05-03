@@ -30,23 +30,16 @@ export const EmployersList: React.FC<EmployersListProps> = ({ employers }) => {
   }
 
   return (
-    <div className={styles.section}>
+    <div className={`${styles.section} ${styles.wideRows}`}>
       <h3 className={styles.sectionTitle}>Работодатели ({filteredEmployers.length})</h3>
 
-      <div style={{ marginBottom: '15px' }}>
+      <div className={styles.searchRow}>
         <input
           type="text"
           placeholder="Поиск по компании, email, ФИ..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px 12px',
-            border: '1px solid #e5e5e5',
-            borderRadius: '6px',
-            fontSize: '14px',
-            boxSizing: 'border-box',
-          }}
+          className={styles.searchInput}
         />
       </div>
 

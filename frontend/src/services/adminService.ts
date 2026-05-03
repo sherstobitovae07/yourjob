@@ -60,6 +60,23 @@ export const adminService = {
     return response.data ?? [];
   },
 
+  getApplicationsByInternshipReport: async (): Promise<any[]> => {
+    try {
+      const response = await apiClient.get(`/reports/applications-by-internship`);
+      try {
+        // eslint-disable-next-line no-console
+        console.debug('GET /reports/applications-by-internship status:', response.status, 'data length:', Array.isArray(response.data) ? response.data.length : 0);
+      } catch (e) {
+        // ignore
+      }
+      return response.data ?? [];
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to load applications-by-internship report:', err);
+      return [];
+    }
+  },
+
   // admin doesn't expose a direct applications list; use reports endpoint for student applications
   getAllApplications: async (): Promise<import('../types/reports').StudentApplicationReportItem[]> => {
     try {

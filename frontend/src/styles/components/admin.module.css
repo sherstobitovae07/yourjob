@@ -1,5 +1,5 @@
 .adminContainer {
-  padding: 32px 24px;
+  padding: 0 24px;
   max-width: 1800px;
   width: min(100%, 1800px);
   margin: 0 auto;
@@ -102,18 +102,104 @@
   background: white;
   border: 1px solid #e5e5e5;
   border-radius: 8px;
-  padding: 20px;
+  /* tighter vertical spacing for a compact table look */
+  padding: 6px 16px;
   margin-bottom: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+/* When a react-admin Datagrid is placed inside our `.section` wrapper,
+   remove the extra Paper so the table lives directly in the section box */
+.section :global(.RaDatagrid-root .MuiPaper-root) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  margin: 0 !important;
+}
+
+.section :global(.RaDatagrid-root .MuiTable-root) {
+  border-radius: 0 !important;
+}
+
 .sectionTitle {
+  display: flex;
+  align-items: center;
   font-size: 18px;
   font-weight: 600;
   color: #1a1a1a;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  margin: 0; /* remove extra gap */
+  /* slightly shorter title row so content moves up */
+  min-height: 44px;
+  padding: 0 12px; /* horizontal padding, centers vertically via flex */
   border-bottom: 1px solid #e5e5e5;
+}
+
+/* Ensure datagrid sits immediately after the title row */
+:global(.RaDatagrid-root), :global(.RaDatagrid-root .MuiPaper-root), :global(.RaDatagrid-root .MuiTable-root) {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* small adjustment for table header alignment */
+:global(.RaDatagrid-headerRow) {
+  margin-top: 0 !important;
+}
+
+:global(.RaDatagrid-root) {
+  margin-top: 0 !important;
+}
+
+/* Keep bulk-action toolbar in-flow so it's visible inside the white container (default RA behavior) */
+:global(.RaBulkActions-root), :global(.ra-bulk-actions), :global(.RaBulkActions) {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 1 !important;
+  background: transparent !important;
+  margin: 8px 0 6px 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  height: auto !important;
+}
+
+/* Ensure datagrid sits close under the title and bulk actions (no extra large gap) */
+:global(.RaDatagrid-root), :global(.RaDatagrid-root .MuiPaper-root), :global(.RaDatagrid-root .MuiTable-root) {
+  margin-top: 0 !important;
+}
+
+.responsive {
+  clear: both;
+}
+
+/* Search row styling shown under section title */
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* reduced vertical padding to match compact employer table rows */
+  padding: 12px 0 8px 0;
+  background: #fff;
+  position: relative;
+  z-index: 20;
+  margin-bottom: 8px;
+}
+.searchInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 1px solid #ececec;
+  background: #fafafa;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #222;
+  flex: 1;
+}
+.searchInput::placeholder {
+  color: #9aa0a6;
 }
 
 .table {
@@ -127,13 +213,25 @@
 }
 
 .tableHeaderCell {
-  padding: 12px;
+  padding: 8px 12px;
   text-align: left;
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   color: #666;
   letter-spacing: 0.5px;
+}
+
+/* Ensure all table headers in react-admin and custom tables use the same subtle gray styling */
+:global(.MuiTableHead-root th), :global(.RaDatagrid-headerCell), :global(.RaDatagrid-headerCell *), :global(table thead th) {
+  background-color: #f5f5f5 !important;
+  color: #666 !important;
+  font-weight: 600 !important;
+}
+
+/* Reduce vertical gap above tables so title and header feel closer */
+.sectionTitle {
+  margin-top: 0;
 }
 
 .tableRow {
@@ -146,9 +244,24 @@
 }
 
 .tableCell {
-  padding: 12px;
+  padding: 6px 12px;
   font-size: 14px;
   color: #333;
+}
+
+/* make body rows even more compact to match Employer list (header remains larger) */
+.table tbody td {
+  padding: 4px 12px;
+}
+
+/* Larger rows for specific lists (students, employers) — header stays the same */
+.wideRows .table tbody td,
+.wideRows table tbody td {
+  padding: 12px 12px;
+}
+
+.table tbody tr {
+  height: auto;
 }
 
 .tableCellSecondary {
@@ -189,6 +302,25 @@
 
 .emptyStateText {
   font-size: 14px;
+}
+
+/* simple footer under custom tables to match react-admin pagination area */
+.tableFooter {
+  padding: 12px 16px 0 16px;
+}
+
+/* Ensure pagination is visually inside our section container (avoid it appearing below the white box) */
+.section :global(.MuiTablePagination-root),
+.section :global(.RaPagination),
+.section :global(.RaPagination-toolbar) {
+  margin: 8px 0 0 0 !important;
+  padding: 8px 0 0 0 !important;
+  background: transparent !important;
+}
+
+/* hide react-admin export button globally (we control export per List via exporter={false}) */
+:global(.RaExportButton-root), :global(.RaExportButton) {
+  display: none !important;
 }
 
 .badge {
@@ -239,6 +371,23 @@
   transform: translateY(-1px);
 }
 
+/* Smaller square action used for compact preview/delete icons to match StudentsList */
+.actionIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.12s ease, transform 0.08s ease;
+}
+.actionIconBtn img { width: 18px; height: 18px; display: block; }
+
+.actionIconBtn:hover { background-color: rgba(0,0,0,0.04); transform: translateY(-1px); }
+
 .reportsList {
   display: grid;
   grid-template-columns: 1fr;
@@ -261,6 +410,30 @@
   border-color: #d4d4d4;
 }
 
+/* Compact action/button sizing only inside table bodies to match Employers list */
+.table tbody {
+  /* ensure small line-height */
+  line-height: 1.2;
+}
+.table tbody .reportBtn {
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  min-height: 28px;
+}
+.table tbody .iconButton,
+.table tbody .actionIconBtn {
+  width: 28px;
+  height: 28px;
+}
+.table tbody .reportActions {
+  gap: 6px;
+}
+.table tbody .reviewIcon { width: 18px; height: 18px; }
+
+/* Make sure large shadows don't increase row height */
+.table tbody .reportBtn { box-shadow: none; }
+
 .reportInfo {
   flex: 1;
 }
@@ -281,7 +454,11 @@
 .reportActions {
   display: flex;
   gap: 8px;
-  margin-left: 16px;
+  align-items: center;
+  /* align actions to the right edge of the actions cell so icons (trash) stack vertically */
+  justify-content: flex-end;
+  /* remove left offset to keep actions consistently positioned */
+  margin-left: 0;
 }
 
 .reportBtn,
@@ -315,6 +492,16 @@
 
 .reportBtnSecondary:hover:not(:disabled) {
   background-color: #f0f7ff;
+}
+
+/* Black outlined button used for preview action in admin lists */
+.reportBtnOutline {
+  background: white;
+  color: #111827;
+  border: 1px solid #111827;
+}
+.reportBtnOutline:hover:not(:disabled) {
+  background-color: #fafafa;
 }
 
 .reportBtn:disabled,
@@ -379,9 +566,12 @@
   inset: 0;
   background: rgba(0,0,0,0.45);
   display: flex;
-  align-items: center;
+  /* place modal starting below the AppBar so it is fully visible */
+  align-items: flex-start;
   justify-content: center;
-  z-index: 1200;
+  padding-top: 96px; /* AppBar height (80px) + small gap */
+  /* ensure modal overlay is above sidebars/drawers and app chrome */
+  z-index: 3000;
 }
 .modal {
   background: white;
@@ -390,10 +580,39 @@
   padding: 16px;
   box-shadow: 0 10px 40px rgba(2,6,23,0.2);
   color: #0f172a; /* ensure dark text inside modal */
+  max-height: calc(100vh - 128px);
+  /* avoid double scrollbars: inner .modalBody will scroll */
+  overflow: hidden;
+  /* keep modal content above the backdrop and other UI elements */
+  position: relative;
+  z-index: 3001;
 }
 .modal p, .modal strong, .modal h3, .modal a { color: #0f172a; }
 .modalHeader { padding-bottom: 8px; border-bottom: 1px solid #eee; margin-bottom: 12px; }
-.modalBody { max-height: 80vh; overflow: auto; padding: 8px 0; }
+.modalBody { max-height: calc(100vh - 220px); overflow: auto; padding: 8px 0; }
+
+/* Custom scrollbar inside modal so it visually fits within rounded corners */
+.modalBody::-webkit-scrollbar {
+  width: 10px;
+}
+.modalBody::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+.modalBody::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #8ed6d6, #3fb5b5);
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.8);
+}
+.modalBody::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #76cfcf, #28a3a3);
+}
+
+/* Firefox scrollbar styling */
+.modalBody {
+  scrollbar-width: thin;
+  scrollbar-color: #3fb5b5 transparent;
+}
 .modalActions { display:flex; gap:12px; justify-content: flex-end; padding-top: 12px; }
 
 @media (max-width: 768px) {
@@ -461,5 +680,29 @@
 .reportBtnDanger:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(239,68,68,0.18);
+}
+
+/* Prevent react-admin drawer from pushing content to the right in this layout: keep it overlaying */
+/* These selectors cover likely class names used by react-admin; force content margin to 0 */
+.RaLayout-content, .ra-layout-content, .RaLayout-main, :global([class*="RaLayout-content"]) {
+  margin-left: 0 !important;
+  position: relative !important;
+}
+
+/* Remove any top padding added by react-admin layout so sections can sit flush under the AppBar */
+:global(.RaLayout-content), :global(.ra-layout-content), :global(.RaLayout-main), :global(body) {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Move the first section up so it sits directly under the blue AppBar like other tabs */
+.adminContainer > .section:first-child {
+  margin-top: 8px; /* tiny gap so it doesn't touch the AppBar */
+  padding-top: 10px; /* ensure section content doesn't get clipped */
+}
+
+/* Keep the drawer as part of the layout (non-overlay) so it doesn't cover content */
+:global(.MuiDrawer-root .MuiDrawer-paper) {
+  position: relative;
 }
 

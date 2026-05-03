@@ -13,9 +13,11 @@ export default function useDeleteApplication() {
     setError(null);
     try {
       await adminService.deleteApplication(applicationId);
+      return true;
     } catch (err) {
       const msg = getHttpErrorMessage(err, 'Ошибка при удалении отклика');
       setError(msg);
+      return false;
     } finally {
       setLoading(false);
     }

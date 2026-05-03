@@ -231,9 +231,10 @@
 
 /* fixed-size white message input used by admin moderation */
 .messageInput {
-  width: 520px;
+  width: 100%;
   max-width: 100%;
-  height: 120px;
+  /* slightly reduced height so focus outline never touches modal edges */
+  height: 110px;
   padding: 12px 14px;
   border-radius: 12px;
   background: #ffffff;
@@ -244,6 +245,14 @@
   box-sizing: border-box;
   resize: none; /* fixed size */
   overflow: auto;
+}
+
+/* Use an inset focus style so the focus highlight is drawn inside the textarea
+   and won't be clipped by modal overflow or rounded corners. */
+.messageInput:focus {
+  outline: none;
+  border-color: var(--color-input-focus-border, #06b6d4);
+  box-shadow: inset 0 0 0 3px rgba(6,182,212,0.12);
 }
 
 /* fixed company description block with scroll when content overflows */

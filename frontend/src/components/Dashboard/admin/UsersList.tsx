@@ -29,20 +29,13 @@ export const UsersList: React.FC<UsersListProps> = ({ users }) => {
     <div className={styles.section}>
       <h3 className={styles.sectionTitle}>Пользователи ({filteredUsers.length})</h3>
 
-      <div style={{ marginBottom: '15px' }}>
+      <div className={styles.searchRow}>
         <input
           type="text"
-          placeholder="Поиск по названию, email..."
+          placeholder="Поиск..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px 12px',
-            border: '1px solid #e5e5e5',
-            borderRadius: '6px',
-            fontSize: '14px',
-            boxSizing: 'border-box',
-          }}
+          className={styles.searchInput}
         />
       </div>
 
@@ -62,11 +55,7 @@ export const UsersList: React.FC<UsersListProps> = ({ users }) => {
               <tr key={user.id} className={styles.tableRow}>
                 <td className={styles.tableCell}>{user.email}</td>
                 <td className={styles.tableCell}>{getFullName(user.first_name, user.last_name)}</td>
-                <td className={styles.tableCell}>
-                  <span className={`${styles.badge} ${styles[getRoleBadgeClass(user.role)]}`}>
-                    {getRoleDisplay(user.role)}
-                  </span>
-                </td>
+                <td className={styles.tableCell}>{getRoleDisplay(user.role)}</td>
                 <td className={`${styles.tableCell} ${styles.tableCellSecondary}`}>
                   {formatDate(user.created_at)}
                 </td>

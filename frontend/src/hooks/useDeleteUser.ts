@@ -13,10 +13,11 @@ export default function useDeleteUser() {
     setError(null);
     try {
       await adminService.deleteUser(userId);
+      return true;
     } catch (err) {
-      const msg = getHttpErrorMessage(err, 'РћС€РёР±РєР° РїСЂРё СѓРґР°Р»РµРЅРёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ');
+      const msg = getHttpErrorMessage(err, 'Ошибка при удалении пользователя');
       setError(msg);
-      
+      return false;
     } finally {
       setLoading(false);
     }

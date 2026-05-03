@@ -17,12 +17,10 @@ export const DeleteUserModal: React.FC<Props> = ({ open, onClose, userId, onDele
   if (!open || userId == null) return null;
 
   const handleDelete = async () => {
-    try {
-      await deleteUser(userId);
+    const ok = await deleteUser(userId);
+    if (ok) {
       onDeleted && onDeleted();
       onClose();
-    } catch (err) {
-      console.error('Delete error:', err);
     }
   };
 

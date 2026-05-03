@@ -71,6 +71,16 @@ export const useAdmin = (): UseAdminResult => {
         hasError = true;
       }
 
+      // Normalize created_at field from various possible backend shapes
+      try {
+        studentsData = (studentsData || []).map((s: any) => {
+          const createdAt = s.created_at ?? s.registered_at ?? s.createdAt ?? s.registeredAt ?? (s.user && (s.user.created_at ?? s.user.createdAt)) ?? null;
+          return { ...s, created_at: createdAt } as AdminStudent;
+        });
+      } catch (e) {
+        // ignore mapping errors
+      }
+
       try {
         internshipsData = await adminService.getAllInternships();
       } catch (err) {

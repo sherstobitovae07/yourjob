@@ -4,7 +4,8 @@ import { ACCESS_TOKEN_COOKIE, TOKEN_TYPE_COOKIE } from '../constants/auth';
 import { deleteCookie, getCookie } from '../utils/cookies';
 const createAxiosClient = (): AxiosInstance => {
   const client = axios.create({
-    baseURL: '/api/v1',
+    // Use relative `/api` by default so Next.js rewrites() proxies requests to backend
+    baseURL: process.env.NEXT_PUBLIC_API_BASE || '/api',
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
