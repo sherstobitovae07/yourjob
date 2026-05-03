@@ -52,9 +52,17 @@ class EmployerProfileResponse(BaseModel):
     website: str | None = None
     photo_path: str | None = None
 
+    inn: str | None = None
+    verification_status: str | None = None
+    verification_comment: str | None = None
+    fns_company_name: str | None = None
+    fns_check_status: str | None = None
+    fns_check_comment: str | None = None
+
 class EmployerProfileUpdateRequest(BaseModel):
     first_name: str | None = Field(default=None, max_length=100)
     last_name: str | None = Field(default=None, max_length=100)
     company_name: str | None = Field(default=None, max_length=255)
     description: str | None = None
     website: str | None = Field(default=None, max_length=255)
+    inn: str | None = Field(default=None, max_length=12)

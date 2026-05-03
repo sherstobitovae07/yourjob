@@ -50,10 +50,13 @@ class ProfileRepository:
         company_name: str | None,
         description: str | None,
         website: str | None,
+        inn: str | None,
     ) -> Employer:
         employer.company_name = company_name
         employer.description = description
         employer.website = website
+        if inn is not None:
+            employer.inn = inn
         self.db.add(employer)
         return employer
 

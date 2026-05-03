@@ -61,6 +61,7 @@ class UserRepository:
         company_name: str | None,
         description: str | None,
         website: str | None,
+        inn: str | None,
     ) -> User:
         user = User(
             email=email,
@@ -77,6 +78,7 @@ class UserRepository:
             company_name=company_name,
             description=description,
             website=website,
+            inn=inn,
         )
         self.db.add(employer)
 

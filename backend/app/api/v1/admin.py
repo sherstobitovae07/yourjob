@@ -10,6 +10,8 @@ from app.schemas.admin import (
     AdminStudentRejectRequest,
     AdminStudentResponse,
     AdminUserResponse,
+    AdminEmployerVerificationResponse,
+    AdminEmployerRejectRequest,
 )
 from app.services.admin_service import AdminService
 from app.schemas.auth import MessageResponse
@@ -118,3 +120,41 @@ def reject_student(
     service = AdminService(db)
     service.reject_student(current_user, student_id, data)
     return MessageResponse(message="Профиль студента отклонен")
+
+@router.get("/employers/pending", response_model=list[AdminEmployerVerificationResponse])
+def get_pending_employers(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    return service.get_pending_employers(current_user)
+
+@router.get("/employers/{employer_id}", response_model=AdminEmployerVerificationResponse)
+def get_employer_by_id(
+    employer_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    return service.get_employer_by_id(current_user, employer_id)
+
+@router.patch("/employers/{employer_id}/approve")
+def approve_employer(
+    employer_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    service.approve_employer(current_user, employer_id)
+    return {"message": "Профиль работодателя подтвержден"}
+
+@router.patch("/employers/{employer_id}/reject")
+def reject_employer(
+    employer_id: int,
+    data: AdminEmployerRejectRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    service = AdminService(db)
+    service.reject_employer(current_user, employer_id, data)
+    return {"message": "Профиль работодателя отклонен"}

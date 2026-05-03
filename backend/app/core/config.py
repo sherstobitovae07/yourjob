@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str
     SMTP_FROM: str
 
+    API_FNS_KEY: str
+    API_FNS_BASE_URL: str = "https://api-fns.ru/api/egr"
+
     model_config = SettingsConfigDict(env_file=".env" ,env_file_encoding="utf-8")
 
 settings = Settings()

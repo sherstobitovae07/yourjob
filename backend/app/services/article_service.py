@@ -84,11 +84,10 @@ class ArticleService:
         return result
 
     def get_pending_articles(self, current_user):
-        # Admins can see all pending articles; employers can see only their own pending articles
-        if current_user.role == UserRole.ADMIN:
-            articles = self.repository.get_pending()
-        else:
-            articles = self.repository.get_pending_by_author(current_user.id)
+        if current_user.role != UserRole.ADMIN:
+            raise HTTPException(403, "Доступ только для администратора")
+
+        articles = self.repository.get_pending()
 
         result = []
         for a in articles:

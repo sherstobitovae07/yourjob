@@ -10,6 +10,8 @@ from app.schemas.admin import (
     AdminStudentResponse,
     AdminStudentRejectRequest,
     AdminUserResponse,
+    AdminEmployerVerificationResponse,
+    AdminEmployerRejectRequest,
 )
 from app.models.enums import VerificationStatus
 from app.services.email_service import EmailService
@@ -267,3 +269,75 @@ class AdminService:
             verification_comment=student.verification_comment,
             created_at=created_at,
         )
+
+    def _employer_to_verification_response(self, employer) -> AdminEmployerVerificationResponse:
+        return AdminEmployerVerificationResponse(
+            id=employer.id,
+            email=employer.user.email if employer.user else None,
+            first_name=employer.user.first_name if employer.user else None,
+            last_name=employer.user.last_name if employer.user else None,
+            company_name=employer.company_name,
+            description=employer.description,
+            website=employer.website,
+            photo_path=employer.photo_path,
+            inn=employer.inn,
+            verification_status=employer.verification_status,
+            verification_comment=employer.verification_comment,
+            fns_company_name=employer.fns_company_name,
+            fns_check_status=employer.fns_check_status,
+            fns_check_comment=employer.fns_check_comment,
+            created_at=employer.user.created_at if employer.user else None,
+        )
+
+    def get_pending_employers(self, current_user: User) -> list[AdminEmployerVerificationResponse]:
+        self._check_admin_access(current_user)
+
+        employers = self.repository.get_pending_employers()
+        return [self._employer_to_verification_response(e) for e in employers]
+
+    def get_employer_by_id(self, current_user: User, employer_id: int) -> AdminEmployerVerificationResponse:
+        self._check_admin_access(current_user)
+
+        employer = self.repository.get_employer_by_id(employer_id)
+        if not employer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Работодатель не найден",
+            )
+
+        return self._employer_to_verification_response(employer)
+
+    def approve_employer(self, current_user: User, employer_id: int) -> None:
+        self._check_admin_access(current_user)
+
+        employer = self.repository.get_employer_by_id(employer_id)
+        if not employer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Работодатель не найден",
+            )
+
+        employer.verification_status = VerificationStatus.APPROVED
+        employer.verification_comment = None
+
+        self.repository.save_employer(employer)
+
+    def reject_employer(
+            self,
+            current_user: User,
+            employer_id: int,
+            data: AdminEmployerRejectRequest,
+    ) -> None:
+        self._check_admin_access(current_user)
+
+        employer = self.repository.get_employer_by_id(employer_id)
+        if not employer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Работодатель не найден",
+            )
+
+        employer.verification_status = VerificationStatus.REJECTED
+        employer.verification_comment = data.comment
+
+        self.repository.save_employer(employer)

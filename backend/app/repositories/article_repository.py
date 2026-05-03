@@ -50,15 +50,6 @@ class ArticleRepository:
             .all()
         )
 
-    def get_pending_by_author(self, author_id: int):
-        return (
-            self.db.query(Article)
-            .filter(Article.is_published == False)
-            .filter(Article.author_id == author_id)
-            .order_by(Article.id.desc())
-            .all()
-        )
-
     def delete(self, article):
         self.db.delete(article)
         self.db.commit()

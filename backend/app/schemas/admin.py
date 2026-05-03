@@ -49,3 +49,24 @@ class AdminStudentResponse(BaseModel):
 
 class AdminStudentRejectRequest(BaseModel):
     comment: str
+
+class AdminEmployerVerificationResponse(BaseModel):
+    id: int
+    email: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    company_name: str | None = None
+    description: str | None = None
+    website: str | None = None
+    photo_path: str | None = None
+    inn: str | None = None
+    verification_status: str | None = None
+    verification_comment: str | None = None
+    fns_company_name: str | None = None
+    fns_check_status: str | None = None
+    fns_check_comment: str | None = None
+    created_at: datetime | None = None
+
+
+class AdminEmployerRejectRequest(BaseModel):
+    comment: str
