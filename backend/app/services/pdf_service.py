@@ -10,9 +10,8 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 class PDFService:
     def __init__(self):
-        pdfmetrics.registerFont(TTFont("Arial", r"C:\Windows\Fonts\arial.ttf"))
-        pdfmetrics.registerFont(TTFont("Arial-Bold", r"C:\Windows\Fonts\arialbd.ttf"))
-
+        pdfmetrics.registerFont(TTFont("Arial", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"))
+        pdfmetrics.registerFont(TTFont("Arial-Bold", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"))
         self.styles = getSampleStyleSheet()
 
         self.title_style = ParagraphStyle(

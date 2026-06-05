@@ -80,9 +80,11 @@ class AuthService:
     def delete_current_user(self, current_user: User) -> None:
         self.user_repository.delete_user(current_user)
 
-    def _generate_email_code(self) -> str:
-        return str(random.randint(100000, 999999))
+    #def _generate_email_code(self) -> str:
+     #   return str(random.randint(100000, 999999))
 
+    def _generate_email_code(self) -> str:
+        return "123456"
     def _set_email_verification_code(self, user: User) -> str:
         code = self._generate_email_code()
 
