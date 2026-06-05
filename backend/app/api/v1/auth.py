@@ -12,6 +12,7 @@ from app.schemas.auth import (
 from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService
 from app.schemas.auth import EmailVerifyRequest, MessageResponse
+from app.schemas.auth import EmailRequest
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -56,3 +57,13 @@ def verify_email(
     service = AuthService(db)
     service.verify_email(data.email, data.code)
     return MessageResponse(message="Email подтвержден")
+
+
+@router.post("/resend-code", response_model=MessageResponse)
+def resend_code(
+    data: EmailRequest,
+    db: Session = Depends(get_db),
+):
+    service = AuthService(db)
+    service.resend_verification_code(data.email)
+    return MessageResponse(message="Код отправлен")

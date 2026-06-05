@@ -34,4 +34,5 @@ export type EmployerRegisterRequest = {
   company_name?: string | null;
   description?: string | null;
   website?: string | null;
-};
+  inn?: string | null;
+};

@@ -3,6 +3,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { verifyEmail, login, getAuthErrorMessage } from "../../../services/authService";
 import { studentProfileService } from "../../../services/studentProfileService";
+import { employerProfileService } from "../../../services/employerProfileService";
 import "@/styles/components/pages/auth/authPage.css";
 
 export default function VerifyPage() {
@@ -42,6 +43,21 @@ export default function VerifyPage() {
           sessionStorage.removeItem('pending_resume_name');
         }
       }
+        // if this user is an employer, try to submit employer profile for verification
+        if (user && user.role === 'EMPLOYER') {
+          try {
+            // fetch employer profile and ensure required fields are present
+            const profile = await employerProfileService.getProfile();
+            const hasRequired = profile.company_name && profile.description && profile.website && profile.inn;
+            if (hasRequired) {
+              await employerProfileService.submitForVerification();
+            } else {
+              console.info('Employer profile incomplete — skipping automatic submit-for-verification');
+            }
+          } catch (submitErr) {
+            console.error('Employer submit-for-verification failed:', submitErr);
+          }
+        }
       if (user) {
         const dashboardRole = user.role ?? localStorage.getItem("user_role");
         const dashboardPath =

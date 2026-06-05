@@ -5,6 +5,7 @@ import { getFileUrl } from '../../../utils/fileHelper';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { employerProfileService, type EmployerProfile } from "../../../services/employerProfileService";
+import ResubmitForVerificationButton from '../../../components/profile/ResubmitForVerificationButton';
 import DeleteAccountButton from '../../../components/profile/DeleteAccountButton';
 import styles from '@/styles/components/profile.module.css';
 
@@ -25,6 +26,7 @@ export default function MyEmployerProfilePage() {
     company_name: "",
     description: "",
     website: "",
+    inn: "",
   });
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export default function MyEmployerProfilePage() {
           company_name: data.company_name || "",
           description: data.description || "",
           website: data.website || "",
+          inn: (data as any).inn || "",
         });
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -52,6 +55,19 @@ export default function MyEmployerProfilePage() {
     fetchProfile();
   }, []);
 
+  const refreshProfile = async () => {
+    try {
+      setLoading(true);
+      const data = await employerProfileService.getProfile();
+      setProfile(data);
+    } catch (err) {
+      console.error('Error refreshing profile:', err);
+      setError('Не удалось обновить профиль');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -61,6 +77,20 @@ export default function MyEmployerProfilePage() {
     try {
       setIsSaving(true);
       setError(null);
+      // Клиентская валидация ИНН: только цифры и длина 10 или 12
+      const validateInn = (inn: string | null | undefined): boolean => {
+        if (!inn) return true; // пустой ИНН разрешён на этом шаге
+        const s = String(inn).trim();
+        if (!/^[0-9]+$/.test(s)) return false;
+        return s.length === 10 || s.length === 12;
+      };
+
+      if (!validateInn(formData.inn)) {
+        setError('Некорректный ИНН');
+        setIsSaving(false);
+        return;
+      }
+
       const updated = await employerProfileService.updateProfile(formData);
       setProfile(updated);
       setFormData({
@@ -69,6 +99,7 @@ export default function MyEmployerProfilePage() {
         company_name: updated.company_name || "",
         description: updated.description || "",
         website: updated.website || "",
+        inn: (updated as any).inn || "",
       });
       setIsEditing(false);
     } catch (err) {
@@ -115,6 +146,7 @@ export default function MyEmployerProfilePage() {
         company_name: profile.company_name || "",
         description: profile.description || "",
         website: profile.website || "",
+        inn: (profile as any).inn || "",
       });
     }
     setIsEditing(false);
@@ -125,10 +157,29 @@ export default function MyEmployerProfilePage() {
   return (
     <main className={styles.main} suppressHydrationWarning>
       <div className={styles.container}>
-        {/* Header */}
+        {profile?.verification_status ? (
+          <div className={styles.statusContainer}>
+            {(() => {
+              const st = String(profile.verification_status).toUpperCase();
+              if (st === 'PENDING') return <div className={`${styles.statusBadge} ${styles.statusPending}`}>Аккаунт ожидает одобрения</div>;
+              if (st === 'APPROVED') return <div className={`${styles.statusBadge} ${styles.statusApproved}`}>Аккаунт одобрен</div>;
+              if (st === 'REJECTED') {
+                const comment = (profile as any).verification_comment ? `, причина: ${(profile as any).verification_comment}` : '';
+                return <div className={`${styles.statusBadge} ${styles.statusRejected}`}>Аккаунт отклонен{comment}</div>;
+              }
+              return <div className={styles.statusBadge}>{profile.verification_status}</div>;
+            })()}
+            {String(profile.verification_status).toUpperCase() === 'REJECTED' ? (
+              <div style={{ marginLeft: 12 }}>
+                <ResubmitForVerificationButton onSuccess={refreshProfile} />
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <p className={styles.subtitle}>Ваш профиль работодателя</p>
+            <p className={styles.subtitle}>Ваш профиль</p>
           </div>
           <div className={styles.topActions}>
             <Link href="/dashboard/employer" className={styles.linkButton}>
@@ -138,7 +189,6 @@ export default function MyEmployerProfilePage() {
           </div>
         </div>
 
-        {/* Main Content */}
         {loading ? (
           <div className={styles.loadingBox}>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>Загрузка профиля...</p>
@@ -195,9 +245,7 @@ export default function MyEmployerProfilePage() {
               </div>
 
               <div style={{ display: 'grid', gap: '20px' }}>
-                {/* Name */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "20px" }}>
-                  {/* First Name */}
                   <div>
                     <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
                       Имя
@@ -209,7 +257,6 @@ export default function MyEmployerProfilePage() {
                     )}
                   </div>
 
-                  {/* Last Name */}
                   <div>
                     <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
                       Фамилия
@@ -222,7 +269,6 @@ export default function MyEmployerProfilePage() {
                   </div>
                 </div>
 
-                {/* Company Name */}
                 <div>
                   <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
                     Название компании
@@ -234,27 +280,39 @@ export default function MyEmployerProfilePage() {
                   )}
                 </div>
 
-                {/* Website */}
-                <div>
-                  <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
-                    Веб-сайт
-                  </label>
-                  {isEditing ? (
-                    <input type="text" name="website" value={formData.website} onChange={handleInputChange} className={styles.input} />
-                  ) : (
-                    formData.website ? (
-                      <a
-                        href={formData.website.startsWith('http') ? formData.website : `https://${formData.website}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.readonlyLink}
-                      >
-                        {formData.website}
-                      </a>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "20px" }}>
+                  <div>
+                    <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
+                      Веб-сайт
+                    </label>
+                    {isEditing ? (
+                      <input type="text" name="website" value={formData.website} onChange={handleInputChange} className={styles.input} />
                     ) : (
-                      <div className={`${styles.readonlyField} ${styles.placeholderText}`}>Не указан</div>
-                    )
-                  )}
+                      formData.website ? (
+                        <a
+                          href={formData.website.startsWith('http') ? formData.website : `https://${formData.website}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={styles.readonlyLink}
+                        >
+                          {formData.website}
+                        </a>
+                      ) : (
+                        <div className={`${styles.readonlyField} ${styles.placeholderText}`}>Не указан</div>
+                      )
+                    )}
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", color: "#64748b", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
+                      ИНН компании
+                    </label>
+                    {isEditing ? (
+                      <input type="text" name="inn" value={formData.inn} onChange={handleInputChange} className={styles.input} />
+                    ) : (
+                      <div className={styles.readonlyField} style={{ color: formData.inn ? '#1f2937' : '#64748b' }}>{formData.inn || 'Не указан'}</div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -288,7 +346,6 @@ export default function MyEmployerProfilePage() {
               </div>
             </div>
 
-            {/* Info Section */}
             <div className={styles.infoBoxContainer}>
               <div className={styles.infoBox}>
                 <p style={{ margin: 0, color: '#0f172a', fontSize: '16px', lineHeight: 1.75 }}>

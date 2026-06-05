@@ -1,0 +1,135 @@
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 2000;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.drawer {
+  width: 380px;
+  max-width: 90%;
+  position: fixed;
+  right: 0;
+  top: 72px;
+  height: calc(100% - 72px);
+  background: #ffffff;
+  padding: 20px;
+  box-sizing: border-box;
+  box-shadow: -8px 0 24px rgba(2,6,23,0.2);
+  overflow-y: auto;
+  z-index: 1300;
+  border-radius: 6px 0 0 6px;
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.drawerTitle {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.05;
+  color: #0f172a; /* dark */
+  font-weight: 700;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #0f172a;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.formLabel {
+  display: block;
+  font-size: 15px;
+  color: #1f2937;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(148,163,184,0.5);
+  background: #fff;
+  box-sizing: border-box;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.input::placeholder {
+  color: #64748b; /* slightly darker gray for better contrast */
+  opacity: 1;
+}
+
+/* Style number spinner arrows in WebKit browsers to be lighter */
+.input[type="number"]::-webkit-inner-spin-button,
+.input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  color: #94a3b8; /* lighter gray */
+  opacity: 0.9;
+  filter: grayscale(100%) brightness(0.9);
+}
+
+/* For Firefox, remove default arrows so the input looks consistent (Firefox doesn't allow coloring them). */
+.input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.inputSpacing {
+  margin-bottom: 16px;
+}
+
+.salaryStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.resetBtn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  color: var(--color-primary-green);
+  font-size: 16px;
+}
+
+.resetBtnGradientText {
+  background: var(--color-button-primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.submitBtn {
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-button-primary-gradient);
+  color: #fff;
+  box-shadow: var(--color-button-primary-shadow);
+  font-size: 16px;
+  font-weight: 600;
+}

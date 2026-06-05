@@ -58,6 +58,7 @@ export default function RegisterPage() {
           company_name: normalizeOptional(fd.get("company_name") ?? ""),
           description: normalizeOptional(fd.get("description") ?? ""),
           website: normalizeOptional(fd.get("website") ?? ""),
+          inn: normalizeOptional(fd.get("inn") ?? ""),
         };
         await registerEmployer(payload);
       }
@@ -269,18 +270,33 @@ export default function RegisterPage() {
                   disabled={loading}
                 />
               </div>
-              <div className="full-width">
-                <label className="auth-label" htmlFor="website">
-                  Сайт
-                </label>
-                <input
-                  id="website"
-                  name="website"
-                  type="text"
-                  className="auth-input"
-                  placeholder="Необязательно"
-                  disabled={loading}
-                />
+              <div className="full-width" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label className="auth-label" htmlFor="website">
+                    Сайт
+                  </label>
+                  <input
+                    id="website"
+                    name="website"
+                    type="text"
+                    className="auth-input"
+                    placeholder="Необязательно"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label className="auth-label" htmlFor="inn">
+                    ИНН
+                  </label>
+                  <input
+                    id="inn"
+                    name="inn"
+                    type="text"
+                    className="auth-input"
+                    placeholder="Необязательно"
+                    disabled={loading}
+                  />
+                </div>
               </div>
             </>
           )}

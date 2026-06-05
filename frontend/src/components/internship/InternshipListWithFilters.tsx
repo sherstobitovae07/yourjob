@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { dashboardService } from "@/services/dashboardService";
 import type { InternshipPublicResponse } from "@/types/internship";
 import styles from "@/app/page.module.css";
+import localStyles from "./InternshipListWithFilters.module.css";
 import { getInternshipImage, getFirstSentence, parseDateFromString, formatRuDate, formatStatus } from "@/utils/internshipUtils";
 import Link from "next/link";
 
@@ -24,6 +25,7 @@ export default function InternshipListWithFilters({ initialQ = "" }: { initialQ?
   const [minSalary, setMinSalary] = useState<string>("");
   const [maxSalary, setMaxSalary] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const [modalQ, setModalQ] = useState(q);
 
   const fetchData = async (filters?: Filters) => {
     try {
@@ -56,22 +58,52 @@ export default function InternshipListWithFilters({ initialQ = "" }: { initialQ?
   return (
     <div>
       {showModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div className={styles.filtersModal}>
-            <div className={styles.filtersModalHeader}>
-              <h3 style={{ margin: 0 }}>Фильтры</h3>
-              <button onClick={() => setShowModal(false)} style={{ background: "transparent", border: "none", color: "#0f172a", fontSize: 20, cursor: "pointer" }}>✕</button>
+        <div className={localStyles.drawerBackdrop}>
+          <div className={localStyles.drawer}>
+            <div className={localStyles.drawerHeader}>
+              <h3 className={localStyles.drawerTitle}>Фильтры</h3>
+              <button onClick={() => setShowModal(false)} className={localStyles.closeBtn}>✕</button>
             </div>
-            <form className={styles.filtersModalForm} onSubmit={(e) => { applyFilters(e); setShowModal(false); }}>
-              <input type="text" placeholder="Город" value={city} onChange={(e) => setCity(e.target.value)} className={styles.filtersModalInput} />
-              <input type="text" placeholder="Направление" value={direction} onChange={(e) => setDirection(e.target.value)} className={styles.filtersModalInput} />
-              <div style={{ display: "flex", gap: 8 }}>
-                <input type="number" placeholder="Мин. зарплата" value={minSalary} onChange={(e) => setMinSalary(e.target.value)} className={styles.filtersModalInput} style={{ flex: 1 }} />
-                <input type="number" placeholder="Макс. зарплата" value={maxSalary} onChange={(e) => setMaxSalary(e.target.value)} className={styles.filtersModalInput} style={{ flex: 1 }} />
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              // build filters from modal-local values
+              const filters: Filters = {};
+              const finalQ = modalQ?.trim();
+              if (finalQ) filters.q = finalQ;
+              if (city.trim()) filters.city = city.trim();
+              if (direction.trim()) filters.direction = direction.trim();
+              if (minSalary.trim()) filters.min_salary = Number(minSalary);
+              if (maxSalary.trim()) filters.max_salary = Number(maxSalary);
+              // sync main search input and fetch
+              setQ(finalQ ?? "");
+              fetchData(filters);
+              setShowModal(false);
+            }}>
+              <div className={localStyles.inputSpacing}>
+                <input type="text" placeholder="Поиск..." value={modalQ} onChange={(e) => setModalQ(e.target.value)} className={localStyles.input} />
               </div>
-              <div className={styles.filtersModalActions}>
-                <button type="button" onClick={() => setShowModal(false)} className={`${styles.modalBtn} ${styles.modalBtnPrimary}`}>Отмена</button>
-                <button type="submit" className={`${styles.modalBtn} ${styles.modalBtnPrimary}`}>Применить</button>
+
+              <div className={localStyles.inputSpacing}>
+                <label className={localStyles.formLabel}>Регион</label>
+                <input type="text" placeholder="Поиск региона" value={city} onChange={(e) => setCity(e.target.value)} className={localStyles.input} />
+              </div>
+
+              <div className={localStyles.inputSpacing}>
+                <label className={localStyles.formLabel}>Профессия</label>
+                <input type="text" placeholder="Поиск профессии" value={direction} onChange={(e) => setDirection(e.target.value)} className={localStyles.input} />
+              </div>
+
+              <div className={localStyles.salaryStack}>
+                <label className={localStyles.formLabel}>Уровень дохода</label>
+                <input type="number" placeholder="От" value={minSalary} onChange={(e) => setMinSalary(e.target.value)} className={localStyles.input} />
+                <input type="number" placeholder="До" value={maxSalary} onChange={(e) => setMaxSalary(e.target.value)} className={localStyles.input} />
+              </div>
+              <div className={localStyles.actions}>
+                <button type="button" onClick={() => { setModalQ(''); setCity(''); setDirection(''); setMinSalary(''); setMaxSalary(''); }} className={`${localStyles.resetBtn}`}>
+                  Сбросить
+                </button>
+                <button type="submit" className={localStyles.submitBtn}>Показать вакансии</button>
               </div>
             </form>
           </div>
@@ -97,7 +129,7 @@ export default function InternshipListWithFilters({ initialQ = "" }: { initialQ?
         <button
           type="button"
           className={styles.roleBtnActive}
-          onClick={() => setShowModal(true)}
+          onClick={() => { setModalQ(q); setShowModal(true); }}
           style={{
             height: 42,
             minWidth: 48,

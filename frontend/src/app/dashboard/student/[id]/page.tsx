@@ -20,11 +20,16 @@ export default function StudentProfilePage({ params, searchParams }: StudentProf
 
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [rawJson, setRawJson] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await studentProfileService.getProfileById(parseInt(studentId, 10));
+        // debug: log raw response to help trace missing fields
+        // eslint-disable-next-line no-console
+        console.debug('student profile response:', data);
+        setRawJson(JSON.stringify(data, null, 2));
         setProfile(data);
       } catch (error) {
         console.error("Failed to load student profile:", error);
@@ -130,6 +135,13 @@ export default function StudentProfilePage({ params, searchParams }: StudentProf
             <div className={styles.infoBox}>
               <p><strong>Совет:</strong> Проверьте профиль студента на соответствие требованиям стажировки. Обратите внимание на университет, специальность и наличие резюме.</p>
             </div>
+            {/* Debug: show raw JSON when most fields are empty to diagnose missing data */}
+            {rawJson && (!displayProfile.university && !displayProfile.faculty && !displayProfile.specialty && !displayProfile.resume_path) && (
+              <div style={{ marginTop: 16, background: '#fff', padding: 12, borderRadius: 8 }}>
+                <strong>DEBUG: ответ сервера</strong>
+                <pre style={{ whiteSpace: 'pre-wrap', maxHeight: 240, overflow: 'auto' }}>{rawJson}</pre>
+              </div>
+            )}
           </>
         )}
       </div>

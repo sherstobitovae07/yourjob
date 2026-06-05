@@ -421,7 +421,32 @@ function EmployersWrapper(props: any) {
   const [data, setData] = React.useState<any[]>([]);
   React.useEffect(() => {
     let mounted = true;
-    adminService.getAllEmployers().then((res: any) => { if (mounted) setData(res || []); }).catch(() => {});
+    (async () => {
+      try {
+        const [all, pending] = await Promise.allSettled([adminService.getAllEmployers(), adminService.getPendingEmployers()]);
+        const allList: any[] = all.status === 'fulfilled' ? (all.value || []) : [];
+        const pendingList: any[] = pending.status === 'fulfilled' ? (pending.value || []) : [];
+
+        const pendingMap: Record<number, any> = {};
+        (pendingList || []).forEach((p: any) => { if (p && p.id) pendingMap[p.id] = p; });
+
+        const merged = (allList || []).map((it: any) => {
+          const extra = pendingMap[it.id] || {};
+          return {
+            ...it,
+            verification_status: it.verification_status ?? it.status ?? extra.verification_status ?? extra.status ?? null,
+            verification_comment: it.verification_comment ?? extra.verification_comment ?? null,
+            fns_company_name: it.fns_company_name ?? extra.fns_company_name ?? null,
+            fns_check_status: it.fns_check_status ?? extra.fns_check_status ?? null,
+            fns_check_comment: it.fns_check_comment ?? extra.fns_check_comment ?? null,
+          };
+        });
+
+        if (mounted) setData(merged);
+      } catch (err) {
+        if (mounted) setData([]);
+      }
+    })();
     return () => { mounted = false; };
   }, []);
   return <EmployersListView employers={data} />;

@@ -1,4 +1,5 @@
 import { apiClient } from "../configs/axiosClient";
+import { getStoredUserRole } from '@/utils/authHelper';
 export interface StudentProfile {
   id: number;
   email: string;
@@ -33,11 +34,31 @@ export const studentProfileService = {
       throw error;
     }
   },
-  getProfileById: async (studentId: number): Promise<StudentProfile> => {
+  getProfileById: async (studentId: number): Promise<StudentProfile | null> => {
     try {
       const res = await apiClient.get(`/profile/student/${studentId}`);
       return res.data;
     } catch (error) {
+      // If public profile endpoint is not available (404), only try admin endpoint
+      // when the current user is an admin — otherwise return null so callers
+      // can use fallback data (avoids noisy 404 Axios errors in the console).
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const err: any = error;
+        if (err?.response?.status === 404) {
+          const role = getStoredUserRole();
+          if (role === 'ADMIN') {
+            const res2 = await apiClient.get(`/admin/students/${studentId}`);
+            return res2.data;
+          }
+          // For non-admins, a dedicated public endpoint does not exist —
+          // return null and let the UI use fallback query params.
+          return null;
+        }
+      } catch (fallbackErr) {
+        console.error('Fallback admin student fetch failed:', fallbackErr);
+      }
+
       console.error("Error fetching student profile by id:", error);
       throw error;
     }

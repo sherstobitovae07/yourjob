@@ -17,6 +17,18 @@ export interface AdminEmployer {
   company_name: string | null;
   description: string | null;
   website: string | null;
+  // optional fields returned by some admin endpoints
+  inn?: string | null;
+  // FNS check results returned by admin pending endpoint
+  fns_company_name?: string | null;
+  fns_check_status?: string | null;
+  fns_check_comment?: string | null;
+  photo_path?: string | null;
+  // verification status: APPROVED | PENDING | REJECTED
+  verification_status?: string | null;
+  // some endpoints may return `status` instead of `verification_status`
+  status?: string | null;
+  verification_comment?: string | null;
   created_at: string | null;
 }
 

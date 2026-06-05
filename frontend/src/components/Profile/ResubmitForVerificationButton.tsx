@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function ResubmitForVerificationButton({ onSuccess }: Props) {
-  const { isSubmitting, submit } = useResubmitProfile();
+  const { isSubmitting, submit, error } = useResubmitProfile();
 
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
@@ -36,6 +36,9 @@ export default function ResubmitForVerificationButton({ onSuccess }: Props) {
             </div>
             <div className={adminStyles.modalBody}>
               <p>Вы уверены, что хотите повторно отправить профиль на проверку?</p>
+              {error ? (
+                <div style={{ color: 'var(--danger)', marginTop: 8 }}>{error}</div>
+              ) : null}
             </div>
             <div className={adminStyles.modalActions}>
               <button className={styles.btnEdit} onClick={() => setConfirmOpen(false)} disabled={isSubmitting}>Отмена</button>

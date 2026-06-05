@@ -24,6 +24,25 @@ export const adminService = {
     return response.data;
   },
 
+  getPendingEmployers: async (): Promise<AdminEmployer[]> => {
+    const response = await apiClient.get<AdminEmployer[]>(`${API_BASE}/employers/pending`);
+    return response.data;
+  },
+
+  getEmployerById: async (employerId: number): Promise<any> => {
+    const response = await apiClient.get(`${API_BASE}/employers/${employerId}`);
+    return response.data;
+  },
+
+  approveEmployer: async (employerId: number): Promise<void> => {
+    await apiClient.patch(`${API_BASE}/employers/${employerId}/approve`);
+  },
+
+  rejectEmployer: async (employerId: number, comment: string | null = null): Promise<void> => {
+    const payload = comment ? { comment } : {};
+    await apiClient.patch(`${API_BASE}/employers/${employerId}/reject`, payload);
+  },
+
   getStudentById: async (studentId: number): Promise<any> => {
     const response = await apiClient.get(`${API_BASE}/students/${studentId}`);
     return response.data;

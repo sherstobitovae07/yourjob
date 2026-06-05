@@ -133,9 +133,16 @@ export default function CreateInternshipPage({
     } catch (err) {
       console.error("Internship save error:", err);
       if (axios.isAxiosError(err) && err.response) {
-        const data = err.response.data;
-        const serverMessage = typeof data === 'string' ? data : JSON.stringify(data);
-        setError(`Ошибка ${mode === "edit" ? "обновления" : "создания"} стажировки: ${serverMessage}`);
+        // Prefer structured detail if available
+        const respData: any = err.response.data;
+        const serverDetail = respData?.detail ?? (typeof respData === 'string' ? respData : JSON.stringify(respData));
+        // Map specific backend detail to the exact user-facing sentence
+        const normalized = String(serverDetail || '').toLowerCase();
+        if (normalized.includes('создавать стажировк') && normalized.includes('подтвержден')) {
+          setError('Ошибка создания стажировки: создавать стажировки могут только подтвержденные работодатели.');
+        } else {
+          setError(`Ошибка ${mode === "edit" ? "обновления" : "создания"} стажировки: ${serverDetail}`);
+        }
       } else {
         setError(err instanceof Error ? err.message : `Ошибка ${mode === "edit" ? "обновления" : "создания"} стажировки`);
       }

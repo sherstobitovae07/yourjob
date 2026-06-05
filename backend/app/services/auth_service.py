@@ -141,3 +141,20 @@ class AuthService:
         user.email_verification_expires_at = None
 
         self.user_repository.save(user)
+
+    def resend_verification_code(self, email: str) -> None:
+        user = self.user_repository.get_by_email(email)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Пользователь не найден",
+            )
+
+        if user.is_email_verified:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email уже подтвержден",
+            )
+
+        code = self._set_email_verification_code(user)
+        EmailService.send_verification_code(user.email, code)
