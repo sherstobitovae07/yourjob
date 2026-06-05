@@ -103,7 +103,8 @@ async function handleProxy(
     }
 
     // Попробуем корректно декодировать body, если это JSON
-    const contentType = response.headers['content-type'] || '';
+    const rawContentType = response.headers['content-type'];
+    const contentType = String(rawContentType || '');
     let body: any = response.data;
     try {
       if (contentType.includes('application/json')) {
@@ -147,7 +148,8 @@ async function handleProxy(
       });
 
         // Попробуем декодировать JSON из arraybuffer если нужно
-        const contentType = backendResponse.headers['content-type'] || '';
+        const rawContentType = backendResponse.headers['content-type'];
+        const contentType = String(rawContentType || '');
         try {
           if (contentType.includes('application/json')) {
             const str = Buffer.from(backendResponse.data).toString('utf8');

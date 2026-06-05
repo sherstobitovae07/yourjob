@@ -28,7 +28,7 @@ const ConfirmStatusChangeModal: React.FC<Props> = ({ open, onClose, applicationI
     try {
       setLoading(true);
       const updated = await dashboardService.updateApplicationStatus(applicationId, { status: targetStatus });
-      onConfirmed && onConfirmed(updated.status);
+      onConfirmed && onConfirmed(updated.status ?? undefined);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось обновить статус');

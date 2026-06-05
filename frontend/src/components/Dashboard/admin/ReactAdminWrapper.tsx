@@ -81,7 +81,8 @@ const dataProvider = {
 };
 
 const UsersInner = (props: any) => {
-  const { total, ids, data, filterValues, setFilters, setPage } = useListContext();
+  const listContext = useListContext() as any;
+  const { total, ids, data, filterValues, setFilters, setPage } = listContext || {};
   const [searchText, setSearchText] = React.useState<string>(filterValues?.q ?? '');
 
   // debounce typing to avoid spamming requests and reset to page 1
@@ -522,7 +523,7 @@ function InternshipsWrapper(props: any) {
           if (mounted) setData((res || []).map((it) => ({ ...it, applications_count: 0 })));
           return;
         }
-        if (mounted) setData(enriched);
+        // enriched is handled above when report fetch succeeds; nothing to do here
       } catch (err) {
         if (mounted) setData([]);
       }

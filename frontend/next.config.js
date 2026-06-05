@@ -1,7 +1,5 @@
 /**
- * Allow common dev origins (localhost and 127.0.0.1)
- * to avoid Turbopack blocking cross-origin dev resource requests.
- */
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {

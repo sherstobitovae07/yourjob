@@ -1,0 +1,41 @@
+# Docker Compose для локального запуска frontend + backend
+version: '3.8'
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: yourjob
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../backend
+    container_name: yourjob_backend
+    env_file:
+      - ../backend/simple.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend/media:/app/media
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: yourjob_frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NEXT_PUBLIC_API_BASE=http://backend:8000/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
