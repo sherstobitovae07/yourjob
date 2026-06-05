@@ -138,19 +138,14 @@ class AdminService:
 
         result = []
         for s in students:
-            created_at = None
-            if s.user:
-                created_at = s.user.created_at
-
             result.append({
                 "id": s.id,
                 "email": s.user.email if s.user else None,
                 "first_name": s.user.first_name if s.user else None,
                 "last_name": s.user.last_name if s.user else None,
                 "university": s.university,
-                "specialization": s.specialty,
+                "specialty": s.specialty,
                 "status": s.verification_status,
-                "created_at": created_at,
             })
         return result
 
