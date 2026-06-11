@@ -236,13 +236,3 @@ def submit_employer_profile_for_verification(
 ):
     service = ProfileService(db)
     return service.submit_employer_profile_for_verification(current_user)
-
-
-@router.get("/student/{student_id}", response_model=StudentProfileResponse)
-def get_student_profile_by_id(
-    student_id: int,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    service = ProfileService(db)
-    return service.get_student_profile_by_id(current_user, student_id)

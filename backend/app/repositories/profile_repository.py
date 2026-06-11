@@ -12,13 +12,6 @@ class ProfileRepository:
     def get_student_by_user_id(self, user_id: int) -> Student | None:
         return self.db.query(Student).filter(Student.id == user_id).first()
 
-    def get_student_by_id(self, student_id: int) -> Student | None:
-        return (
-            self.db.query(Student)
-            .filter(Student.id == student_id)
-            .first()
-        )
-
     def get_employer_by_user_id(self, user_id: int) -> Employer | None:
         return self.db.query(Employer).filter(Employer.id == user_id).first()
 

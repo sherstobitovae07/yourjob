@@ -39,7 +39,3 @@ class MessageResponse(BaseModel):
 class EmailVerifyRequest(BaseModel):
     email: EmailStr
     code: str = Field(min_length=6, max_length=6)
-
-
-class EmailRequest(BaseModel):
-    email: EmailStr

@@ -19,9 +19,9 @@ app = FastAPI(
 FileService.ensure_dirs()
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
-# @app.on_event("startup")
-# def on_startup():
-#     Base.metadata.create_all(bind=engine)
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
 
 
 app.include_router(auth_router, prefix="/api/v1")
