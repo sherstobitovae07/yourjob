@@ -13,9 +13,11 @@ const nextConfig = {
   },
   // Proxy rewrites for development so frontend can call backend without CORS issues
   async rewrites() {
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8001/api/v1';
+    const adminBase = process.env.NEXT_PUBLIC_ADMIN_API || 'http://127.0.0.1:8001/api/v1/admin';
     return [
-      { source: '/api/:path*', destination: process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8001/api/v1/:path*' },
-      { source: '/admin/:path*', destination: process.env.NEXT_PUBLIC_ADMIN_API || 'http://127.0.0.1:8001/api/v1/admin/:path*' },
+      { source: '/api/:path*', destination: `${apiBase.replace(/\/$/, '')}/:path*` },
+      { source: '/admin/:path*', destination: `${adminBase.replace(/\/$/, '')}/:path*` },
     ];
   },
 };

@@ -1,12 +1,7 @@
-# Игнорировать каталоги/файлы при сборке Docker-образа
 node_modules
 .next
-.env
-dist
-build
-npm-debug.log
+.env*
 .git
-.vscode
-.idea
-coverage
-public/static
+.gitignore
+.gitkeep
+

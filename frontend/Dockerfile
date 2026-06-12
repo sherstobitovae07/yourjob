@@ -7,12 +7,11 @@ ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 RUN npm ci --production=false
 
-# Копируем исходники и собираем приложение
+# Копируем ВСЕ исходники
 COPY . .
-# Очистим NODE_OPTIONS на время сборки — иногда в окружении передаётся
-# флаг `--ignoreDeprecations`, который вызывает ошибку при сборке.
+
+# Очистим NODE_OPTIONS на время сборки
 ENV NODE_OPTIONS=""
-RUN echo "DEBUG: NODE_OPTIONS='$NODE_OPTIONS'" && echo "--- env ---" && env || true
 RUN npm run build
 
 # Рантайм изображение

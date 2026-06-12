@@ -71,7 +71,8 @@ async function handleProxy(
   const targetUrl = `${baseUrl}/api/v1/${targetPath}${queryString}`;
 
   // eslint-disable-next-line no-console
-  console.log(`Proxying ${request.method} request to: ${targetUrl}`);
+  console.log(`[PROXY] ${request.method} ${request.nextUrl.pathname} → ${targetUrl}`);
+  console.log(`[PROXY] baseUrl=${baseUrl}, NEXT_PUBLIC_API_URL=${process.env.NEXT_PUBLIC_API_URL}`);
 
   try {
     const requestBody = await getRequestBody(request);
@@ -86,6 +87,10 @@ async function handleProxy(
       responseType: 'arraybuffer',
       validateStatus: () => true,
     });
+
+    // eslint-disable-next-line no-console
+    console.log(`[PROXY] Response: ${response.status} ${response.statusText}`);
+
 
     // Создаем ответ с правильными заголовками
     const responseHeaders: Record<string, string> = {};
@@ -128,15 +133,16 @@ async function handleProxy(
   } catch (error: any) {
     // Выводим полную информацию об ошибке
     // eslint-disable-next-line no-console
-    console.error('Full proxy error:', error);
-    // eslint-disable-next-line no-console
-    console.error('Error details:', {
-      message: error?.message,
-      code: error?.code,
-      response: error?.response?.data,
-      status: error?.response?.status,
-      stack: error?.stack
-    });
+    console.error(`[PROXY ERROR] ${request.method} ${request.nextUrl.pathname}`);
+    console.error(`[PROXY ERROR] Target URL was: ${targetUrl}`);
+    console.error(`[PROXY ERROR] Error message: ${error?.message}`);
+    console.error(`[PROXY ERROR] Error code: ${error?.code}`);
+    console.error(`[PROXY ERROR] Backend response status: ${error?.response?.status}`);
+    if (error?.response?.data) {
+      const rawData = error.response.data;
+      const str = Buffer.isBuffer(rawData) ? Buffer.from(rawData).toString('utf8') : String(rawData);
+      console.error(`[PROXY ERROR] Backend response body: ${str}`);
+    }
 
     if (error.response) {
       // Если есть ответ от бэкенда, возвращаем его как есть

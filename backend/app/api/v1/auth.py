@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
+import logging
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
@@ -13,6 +14,7 @@ from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService
 from app.schemas.auth import EmailVerifyRequest, MessageResponse
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
@@ -39,8 +41,11 @@ def register_student(
     ),
     db: Session = Depends(get_db),
 ):
+    logger.info(f"[REGISTER] POST /auth/register/student received with email={data.email}")
     service = AuthService(db)
-    return service.register_student(data)
+    result = service.register_student(data)
+    logger.info(f"[REGISTER] Student registration successful for {data.email}")
+    return result
 
 
 @router.post(
@@ -66,8 +71,11 @@ def register_employer(
     ),
     db: Session = Depends(get_db),
 ):
+    logger.info(f"[REGISTER] POST /auth/register/employer received with email={data.email}")
     service = AuthService(db)
-    return service.register_employer(data)
+    result = service.register_employer(data)
+    logger.info(f"[REGISTER] Employer registration successful for {data.email}")
+    return result
 
 
 @router.post(

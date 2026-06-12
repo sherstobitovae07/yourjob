@@ -1,5 +1,4 @@
 # Docker Compose для локального запуска frontend + backend
-version: '3.8'
 services:
   db:
     image: postgres:16
@@ -21,19 +20,26 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - ../backend/app:/app/app
       - ../backend/media:/app/media
     depends_on:
       - db
 
   frontend:
-    build:
-      context: ../frontend
+    image: node:20-alpine
     container_name: yourjob_frontend
+    working_dir: /app
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:8000
-      - NEXT_PUBLIC_API_BASE=http://backend:8000/api/v1
+      - NEXT_PUBLIC_API_BASE=/api
+      - HOST=0.0.0.0
     ports:
       - "3000:3000"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+      - ../frontend/.env.local:/app/.env.local
+    command: sh -c "npm ci && npm run dev -- -H 0.0.0.0"
     depends_on:
       - backend
 
